@@ -3,6 +3,7 @@ import NavBar from "../components/NavBar";
 import { FaUser } from "react-icons/fa6";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { ScaleLoader } from "react-spinners";
+import { FeaturedImageGallery } from "../components/Carousel";
 
 const UploadPage = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -62,11 +63,36 @@ const UploadPage = () => {
               </div>
             )}
           </div>
-          <div className="body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
-            <span>Connect your wallet</span>
-            <span className="text-xl">To upload the certificate</span>
-            <ScaleLoader color="#52D858" className="mt-4" />
-          </div>
+          {isWalletConnected == false && (
+            <div className="body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
+              <span>Connect your wallet</span>
+              <span className="text-xl">To upload the certificate</span>
+              <ScaleLoader color="#52D858" className="mt-4" />
+            </div>
+          )}
+
+          {isWalletConnected == true && (
+            <div className="flex justify-between">
+              <div className="body h-[74vh] w-[42vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2">
+                <div className="templateSelector flex flex-col w-full">
+                  <div className="flex justify-between">
+                    <div className="heading my-6 text-xl">
+                      Select a template
+                    </div>
+                    <button className="text-sm font-bold text-grn hover:text-dark hover:bg-grn duration-300 px-4 py-1 border border-grn my-4 rounded-lg">
+                      Select
+                    </button>
+                  </div>
+                  <FeaturedImageGallery />
+                </div>
+              </div>
+              <div className="body h-[74vh] w-[30vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2">
+                <div className="heading text-lg my-6 ">
+                  Else upload your certificate
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
