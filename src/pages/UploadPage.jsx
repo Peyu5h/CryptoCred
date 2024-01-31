@@ -5,11 +5,14 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { ScaleLoader } from "react-spinners";
 import { FeaturedImageGallery } from "../components/Carousel";
 import { SlCloudUpload } from "react-icons/sl";
+import CanvasPage from "./CanvasPage";
 
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [templateSelected, setTemplateSelected] = useState(false);
+
   const handleUpload = (files) => {
     try {
       setIsUploading(true);
@@ -20,8 +23,6 @@ const UploadPage = () => {
       setIsUploading(false);
     }
   };
-
-  // Use these functions on drag events
 
   const handleDragEnter = () => {
     setIsDragActive(true);
@@ -43,7 +44,7 @@ const UploadPage = () => {
   return (
     <div>
       <div className="flex gap-x-8 font-int">
-        <NavBar />
+        <NavBar templateSelected={templateSelected} />
         <div className="right flex flex-col justify-between">
           <div className="upperNav flex items-center justify-end h-[10vh] w-[74vw] bg-dark rounded-xl px-8">
             {isWalletConnected ? (
@@ -95,75 +96,84 @@ const UploadPage = () => {
               </div>
             )}
           </div>
-          {isWalletConnected == false && (
-            <div className="body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
-              <span>Connect your wallet</span>
-              <span className="text-xl">To upload the certificate</span>
-              <ScaleLoader color="#52D858" className="mt-4" />
-            </div>
-          )}
+          {templateSelected == false ? (
+            <>
+              {isWalletConnected == false && (
+                <div className="body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
+                  <span>Connect your wallet</span>
+                  <span className="text-xl">To upload the certificate</span>
+                  <ScaleLoader color="#52D858" className="mt-4" />
+                </div>
+              )}
 
-          {isWalletConnected == true && (
-            <div className="flex justify-between">
-              <div className="body h-[74vh] w-[42vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2">
-                <div className="templateSelector flex flex-col w-full">
-                  <div className="flex justify-between">
-                    <div className="heading my-6 text-xl">
-                      Select a template
+              {isWalletConnected == true && (
+                <div className="flex justify-between">
+                  <div className="body h-[74vh] w-[42vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2">
+                    <div className="templateSelector flex flex-col w-full">
+                      <div className="flex justify-between">
+                        <div className="heading my-6 text-xl">
+                          Select a template
+                        </div>
+                        <button
+                          onClick={() => setTemplateSelected(true)}
+                          className="text-sm font-bold text-grn hover:text-dark hover:bg-grn duration-300 px-4 py-1 border border-grn my-4 rounded-lg"
+                        >
+                          Select
+                        </button>
+                      </div>
+                      <FeaturedImageGallery />
                     </div>
-                    <button className="text-sm font-bold text-grn hover:text-dark hover:bg-grn duration-300 px-4 py-1 border border-grn my-4 rounded-lg">
-                      Select
-                    </button>
                   </div>
-                  <FeaturedImageGallery />
-                </div>
-              </div>
-              <div className="body h-[74vh] w-[30vw] bg-dark rounded-xl px-8 flex  flex-col gap-x-2  text-3xl gap-y-2">
-                <div className="heading text-lg my-6 ">
-                  Else upload your certificate
-                </div>
-                {/* =========================== FILE UPLOAD  ============================= */}
-                <div
-                  className={`flex justify-center items-center w-full h-64 border-2 border-dashed rounded-lg p-5
+                  <div className="body h-[74vh] w-[30vw] bg-dark rounded-xl px-8 flex  flex-col gap-x-2  text-3xl gap-y-2">
+                    <div className="heading text-lg my-6 ">
+                      Else upload your certificate
+                    </div>
+                    {/* =========================== FILE UPLOAD  ============================= */}
+                    <div
+                      className={`flex justify-center items-center w-full h-64 border-2 border-dashed rounded-lg p-5
                     ${
                       isDragActive
                         ? "bg-sky-50 border-sky-400"
                         : "border-gray-300"
                     }`}
-                  onDragEnter={handleDragEnter}
-                  onDragLeave={handleDragLeave}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                >
-                  <p
-                    className={`text-sm ${
-                      isDragActive ? "text-sky-800" : "text-gray-400"
-                    }  `}
-                  >
-                    {isDragActive ? (
-                      "Leave Your File Here"
-                    ) : (
-                      <div className="flex flex-col gap-y-2">
-                        <SlCloudUpload className="text-6xl text-gray-400 mx-auto" />
-                        <span className="text-xl">
-                          Drag and drop or&nbsp;
-                          <span className="text-grn hover:underline cursor-pointer">
-                            Browse
-                          </span>
-                        </span>
-                        <span className="text-[10px] font-thin text-center text-overlay  text-gray-600">
-                          Supported format: jpg/png/pdf
-                        </span>
-                      </div>
-                    )}
-                  </p>
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={handleDrop}
+                    >
+                      <p
+                        className={`text-sm ${
+                          isDragActive ? "text-sky-800" : "text-gray-400"
+                        }  `}
+                      >
+                        {isDragActive ? (
+                          "Leave Your File Here"
+                        ) : (
+                          <div className="flex flex-col gap-y-2">
+                            <SlCloudUpload className="text-6xl text-gray-400 mx-auto" />
+                            <span className="text-xl">
+                              Drag and drop or&nbsp;
+                              <span className="text-grn hover:underline cursor-pointer">
+                                Browse
+                              </span>
+                            </span>
+                            <span className="text-[10px] font-thin text-center text-overlay  text-gray-600">
+                              Supported format: jpg/png/pdf
+                            </span>
+                          </div>
+                        )}
+                      </p>
+                    </div>
+                    {/* ======================================================== */}
+                    <button className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600">
+                      UPLOAD
+                    </button>
+                  </div>
                 </div>
-                {/* ======================================================== */}
-                <button className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600">
-                  UPLOAD
-                </button>
-              </div>
-            </div>
+              )}
+            </>
+          ) : (
+            <CanvasPage />
           )}
         </div>
       </div>
