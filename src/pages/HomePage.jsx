@@ -5,9 +5,7 @@ const HomePage = () => {
     <div>
       <div className="flex gap-x-8">
         <NavBar />
-        <div className="body h-[88vh] w-[74vw] bg-dark rounded-xl px-8">
-          HELLLoW
-        </div>
+        <div className="body h-[88vh] w-[74vw] bg-dark rounded-xl px-8"></div>
       </div>
     </div>
   );

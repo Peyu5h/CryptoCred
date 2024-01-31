@@ -31,9 +31,12 @@ export default {
       },
       textColor: {
         grn: "#52D858",
+        dark: "#191917",
+
         light: "#B5B7B5",
         overlayLight: "#4E4E4E",
       },
+      borderColor: { grn: "#52D858", light: "#B5B7B5" },
     },
   },
   plugins: [],
