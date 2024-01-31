@@ -98,83 +98,87 @@ const NavBar = ({ templateSelected }) => {
 
         {/* =======================  Canvas navs ========================== */}
 
-        <div className="splitter h-[0.5px] bg-overlay w-full my-8"></div>
-        <div className="options flex flex-col gap-y-2 text-md uppercase font-hind">
-          <div
-            onClick={handleTextDrawer}
-            className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
-              canvasActive === "text" ? "bg-activeNav text-grn" : ""
-            }`}
-          >
-            <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
-              {/* RxText component or icon */}
-              <RxText className="mb-1" />
-              <div className="option">Text</div>
-            </div>
-            {canvasActive === "text" ? (
-              <FaAngleRight className="text-light" />
-            ) : (
-              ""
-            )}
-          </div>
-          {openText && (
-            <TextDrawer openText={openText} setOpenText={setOpenText} />
-          )}
+        {templateSelected ? (
+          <>
+            <div className="splitter h-[0.5px] bg-overlay w-full my-8"></div>
+            <div className="options flex flex-col gap-y-2 text-md uppercase font-hind">
+              <div
+                onClick={handleTextDrawer}
+                className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
+                  canvasActive === "text" ? "bg-activeNav text-grn" : ""
+                }`}
+              >
+                <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
+                  {/* RxText component or icon */}
+                  <RxText className="mb-1" />
+                  <div className="option">Text</div>
+                </div>
+                {canvasActive === "text" ? (
+                  <FaAngleRight className="text-light" />
+                ) : (
+                  ""
+                )}
+              </div>
+              {openText && (
+                <TextDrawer openText={openText} setOpenText={setOpenText} />
+              )}
 
-          <div
-            onClick={handleLogoDrawer}
-            className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
-              canvasActive === "logo" ? "bg-activeNav text-grn" : ""
-            }`}
-          >
-            <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
-              <IoIosDocument className="mb-1" />
-              <div className="option">Logo</div>
-            </div>
-            {canvasActive === "logo" ? (
-              <FaAngleRight className="text-light" />
-            ) : (
-              ""
-            )}
-          </div>
-          {openLogo && (
-            <LogoDrawer openLogo={openLogo} setOpenLogo={setOpenLogo} />
-          )}
+              <div
+                onClick={handleLogoDrawer}
+                className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
+                  canvasActive === "logo" ? "bg-activeNav text-grn" : ""
+                }`}
+              >
+                <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
+                  <IoIosDocument className="mb-1" />
+                  <div className="option">Logo</div>
+                </div>
+                {canvasActive === "logo" ? (
+                  <FaAngleRight className="text-light" />
+                ) : (
+                  ""
+                )}
+              </div>
+              {openLogo && (
+                <LogoDrawer openLogo={openLogo} setOpenLogo={setOpenLogo} />
+              )}
 
-          <div
-            onClick={() => setCanvasActive("draw")}
-            className={`flex justify-between items-center rounded-full px-6 cursor-pointer  ${
-              canvasActive === "draw" ? "bg-activeNav text-grn" : ""
-            }`}
-          >
-            <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
-              <MdDraw className="mb-1" />
-              <div className="option">Draw</div>
-            </div>
-            {canvasActive === "draw" ? (
-              <FaAngleRight className="text-light" />
-            ) : (
-              ""
-            )}
-          </div>
+              <div
+                onClick={() => setCanvasActive("draw")}
+                className={`flex justify-between items-center rounded-full px-6 cursor-pointer  ${
+                  canvasActive === "draw" ? "bg-activeNav text-grn" : ""
+                }`}
+              >
+                <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
+                  <MdDraw className="mb-1" />
+                  <div className="option">Draw</div>
+                </div>
+                {canvasActive === "draw" ? (
+                  <FaAngleRight className="text-light" />
+                ) : (
+                  ""
+                )}
+              </div>
 
-          <div
-            onClick={() => setCanvasActive("browse")}
-            className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
-              canvasActive === "browse" ? "bg-activeNav text-grn" : ""
-            }`}
-          >
-            <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
-              <FiUpload className="mb-1" />
-              <div className="option">Browse</div>
+              <div
+                onClick={() => setCanvasActive("browse")}
+                className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
+                  canvasActive === "browse" ? "bg-activeNav text-grn" : ""
+                }`}
+              >
+                <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
+                  <FiUpload className="mb-1" />
+                  <div className="option">Browse</div>
+                </div>
+                {canvasActive === "browse" ? (
+                  <FaAngleRight className="text-light" />
+                ) : (
+                  ""
+                )}
+              </div>
             </div>
-            {canvasActive === "browse" ? (
-              <FaAngleRight className="text-light" />
-            ) : (
-              ""
-            )}
-          </div>
-        </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
