@@ -4,8 +4,40 @@ import { FaUser } from "react-icons/fa6";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { ScaleLoader } from "react-spinners";
 import { FeaturedImageGallery } from "../components/Carousel";
+import { SlCloudUpload } from "react-icons/sl";
 
 const UploadPage = () => {
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const handleUpload = (files) => {
+    try {
+      setIsUploading(true);
+      setUploadedFiles(uploadedFiles.concat(files));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Use these functions on drag events
+
+  const handleDragEnter = () => {
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    const files = Array.from(e.dataTransfer.files);
+    handleUpload(files);
+  };
+
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [dropDown, setDropDown] = useState(false);
   return (
@@ -86,10 +118,50 @@ const UploadPage = () => {
                   <FeaturedImageGallery />
                 </div>
               </div>
-              <div className="body h-[74vh] w-[30vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2">
+              <div className="body h-[74vh] w-[30vw] bg-dark rounded-xl px-8 flex  flex-col gap-x-2  text-3xl gap-y-2">
                 <div className="heading text-lg my-6 ">
                   Else upload your certificate
                 </div>
+                {/* =========================== FILE UPLOAD  ============================= */}
+                <div
+                  className={`flex justify-center items-center w-full h-64 border-2 border-dashed rounded-lg p-5
+                    ${
+                      isDragActive
+                        ? "bg-sky-50 border-sky-400"
+                        : "border-gray-300"
+                    }`}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                >
+                  <p
+                    className={`text-sm ${
+                      isDragActive ? "text-sky-800" : "text-gray-400"
+                    }  `}
+                  >
+                    {isDragActive ? (
+                      "Leave Your File Here"
+                    ) : (
+                      <div className="flex flex-col gap-y-2">
+                        <SlCloudUpload className="text-6xl text-gray-400 mx-auto" />
+                        <span className="text-xl">
+                          Drag and drop or&nbsp;
+                          <span className="text-grn hover:underline cursor-pointer">
+                            Browse
+                          </span>
+                        </span>
+                        <span className="text-[10px] font-thin text-center text-overlay  text-gray-600">
+                          Supported format: jpg/png/pdf
+                        </span>
+                      </div>
+                    )}
+                  </p>
+                </div>
+                {/* ======================================================== */}
+                <button className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600">
+                  UPLOAD
+                </button>
               </div>
             </div>
           )}
