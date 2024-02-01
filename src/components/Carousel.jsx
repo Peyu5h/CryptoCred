@@ -31,7 +31,7 @@ export function FeaturedImageGallery() {
     <div className="grid gap-4">
       <div>
         <img
-          className=" max-w-full rounded-lg  object-center h-[328px] "
+          className=" max-w-full rounded-lg  object-center h-[45vh] "
           src={active}
           alt=""
         />

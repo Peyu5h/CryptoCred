@@ -37,7 +37,7 @@ const NavBar = ({ templateSelected }) => {
   };
   return (
     <div>
-      <div className="nav h-[88vh] w-[18vw] bg-dark rounded-xl px-8 py-5">
+      <div className="nav h-[88vh] w-[18vw] bg-dark rounded-xl px-8 py-5 z-99">
         <div className="logo p-2 bg-grn rounded-full text-black text-center font-int font-bold">
           LOGO
         </div>

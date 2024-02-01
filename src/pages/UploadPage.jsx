@@ -70,7 +70,10 @@ const UploadPage = () => {
                     {dropDown == false ? <IoIosArrowDown /> : <IoIosArrowUp />}
                   </div>
                   {dropDown && (
-                    <div className="dropdown absolute w-full bg-overlay rounded-b-xl top-12 ">
+                    <div
+                      style={{ zIndex: 999 }}
+                      className="dropdown absolute w-full bg-overlay rounded-b-xl top-12 "
+                    >
                       <div className="items mt-3">
                         <div className="splitter h-[0.5px] w-full bg-overlayLight"></div>
                         <div className="changeWallet px-3 py-3 hover:bg-grn hover:text-dark cursor-pointer duration-300 ">
