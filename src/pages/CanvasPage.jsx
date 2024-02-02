@@ -75,54 +75,54 @@ const CanvasPage = () => {
     setSelectedShape(e.target);
   };
 
-  const handleExportPDF = () => {
-    const stage = contentLayerRef.current.getStage();
+  // const handleExportPDF = () => {
+  //   const stage = contentLayerRef.current.getStage();
 
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "px",
-      format: [stage.width(), stage.height()],
-    });
+  //   const pdf = new jsPDF({
+  //     orientation: "landscape",
+  //     unit: "px",
+  //     format: [stage.width(), stage.height()],
+  //   });
 
-    const dataURL = stage.toDataURL({ pixelRatio: 2 });
+  //   const dataURL = stage.toDataURL({ pixelRatio: 2 });
 
-    pdf.addImage(dataURL, "JPEG", 0, 0, stage.width(), stage.height());
+  //   pdf.addImage(dataURL, "JPEG", 0, 0, stage.width(), stage.height());
 
-    pdf.save("certificate.pdf");
-  };
+  //   pdf.save("certificate.pdf");
+  // };
 
-  const handleExportPNG = async () => {
-    const stage = contentLayerRef.current.getStage();
-    const pngDataURL = await downloadImage(imageObj.src);
-    stage.toDataURL({
-      pixelRatio: 2,
-      callback: (dataURL) => {
-        const link = document.createElement("a");
-        link.href = dataURL;
-        link.download = "certificate.png";
-        link.click();
-      },
-    });
-  };
+  // const handleExportPNG = async () => {
+  //   const stage = contentLayerRef.current.getStage();
+  //   const pngDataURL = await downloadImage(imageObj.src);
+  //   stage.toDataURL({
+  //     pixelRatio: 2,
+  //     callback: (dataURL) => {
+  //       const link = document.createElement("a");
+  //       link.href = dataURL;
+  //       link.download = "certificate.png";
+  //       link.click();
+  //     },
+  //   });
+  // };
 
-  const downloadImage = (url) => {
-    return new Promise((resolve, reject) => {
-      const img = new window.Image();
-      img.crossOrigin = "Anonymous";
+  // const downloadImage = (url) => {
+  //   return new Promise((resolve, reject) => {
+  //     const img = new window.Image();
+  //     img.crossOrigin = "Anonymous";
 
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/png"));
-      };
+  //     img.onload = () => {
+  //       const canvas = document.createElement("canvas");
+  //       const ctx = canvas.getContext("2d");
+  //       canvas.width = img.width;
+  //       canvas.height = img.height;
+  //       ctx.drawImage(img, 0, 0);
+  //       resolve(canvas.toDataURL("image/png"));
+  //     };
 
-      img.onerror = reject;
-      img.src = url;
-    });
-  };
+  //     img.onerror = reject;
+  //     img.src = url;
+  //   });
+  // };
 
   return (
     <div className="relative body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2 scrollbar items-center justify-center">
@@ -188,10 +188,10 @@ const CanvasPage = () => {
           )}%`}</div>
         </div>
       </div>
-      <div className="btn text-xs flex flex-col gap-y-8">
+{/*       <div className="btn text-xs flex flex-col gap-y-8">
         <button onClick={handleExportPDF}>Export as PDF</button>
         <button onClick={handleExportPNG}>Export as PNG</button>
-      </div>
+      </div> */}
     </div>
   );
 };
