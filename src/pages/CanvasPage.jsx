@@ -35,10 +35,21 @@ const CanvasPage = () => {
         onClick={handleShapeClick}
         onTap={handleShapeClick}
       />,
+      <Image
+        key={1}
+        image={imgobj}
+        x={100}
+        y={100}
+        width={200}
+        height={150}
+        draggable
+        onClick={handleShapeClick}
+        onTap={handleShapeClick}
+      />,
     ];
     setContentState(initialContentState);
 
-    if (selectedShape) {
+    if (selectedShape && transformerRef.current) {
       if (
         selectedShape.getClassName() === "Text" ||
         selectedShape.getClassName() === "Image"
@@ -46,13 +57,18 @@ const CanvasPage = () => {
         transformerRef.current.nodes([selectedShape]);
         transformerRef.current.getLayer().batchDraw();
       }
-    } else {
+    } else if (transformerRef.current) {
       transformerRef.current.nodes([]);
       transformerRef.current.getLayer().batchDraw();
     }
   }, [selectedShape]);
 
   const imageObj = new window.Image();
+  imageObj.crossOrigin = "Anonymous";
+  imageObj.src =
+    "https://images.pexels.com/photos/20080174/pexels-photo-20080174/free-photo-of-a-hedgehog-is-held-in-a-person-s-hand.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
+
+  const imgobj = new window.Image();
   imageObj.crossOrigin = "Anonymous";
   imageObj.src =
     "https://images.pexels.com/photos/20080174/pexels-photo-20080174/free-photo-of-a-hedgehog-is-held-in-a-person-s-hand.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
@@ -124,6 +140,32 @@ const CanvasPage = () => {
     });
   };
 
+  const handleTextChange = () => {
+    if (selectedShape && selectedShape.getClassName() === "Text") {
+      const updatedText = (
+        <Text
+          key={selectedShape.attrs.id}
+          x={selectedShape.attrs.x}
+          y={selectedShape.attrs.y}
+          text={selectedShape.attrs.text}
+          fontSize={selectedShape.attrs.fontSize}
+          fill={selectedShape.attrs.fill}
+          width={selectedShape.width() * selectedShape.scaleX()} // Adjust width based on scaleX
+          height={selectedShape.height() * selectedShape.scaleY()} // Adjust height based on scaleY
+          draggable
+          onClick={handleShapeClick}
+          onTap={handleShapeClick}
+        />
+      );
+
+      const updatedContentState = contentState.map((shape) =>
+        shape.key === selectedShape.attrs.id ? updatedText : shape
+      );
+
+      setContentState(updatedContentState);
+    }
+  };
+
   return (
     <div className="relative body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2 scrollbar items-center justify-center">
       <Stage
@@ -191,6 +233,7 @@ const CanvasPage = () => {
       <div className="btn text-xs flex flex-col gap-y-8">
         <button onClick={handleExportPDF}>Export as PDF</button>
         <button onClick={handleExportPNG}>Export as PNG</button>
+        <button onClick={handleTextChange}> Change</button>
       </div>
     </div>
   );
