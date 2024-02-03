@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Stage, Layer, Image, Text, Rect, Transformer } from "react-konva";
+import { Stage, Layer, Text, Rect, Transformer, Image } from "react-konva";
 import { LuUndo2, LuRedo2 } from "react-icons/lu";
 import jsPDF from "jspdf";
 
@@ -7,75 +7,81 @@ const CanvasPage = () => {
   const [contentState, setContentState] = useState([]);
   const [selectedShape, setSelectedShape] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [contentHistory, setContentHistory] = useState([]);
 
   const contentLayerRef = useRef();
   const transformerRef = useRef();
+  const textRef = useRef();
+  const imageRef = useRef(); // Add this line
 
   useEffect(() => {
-    const initialContentState = [
-      <Text
-        key={0}
-        x={10}
-        y={10}
-        text="Hello"
-        fontSize={20}
-        fill="black"
-        draggable
-        onClick={handleShapeClick}
-        onTap={handleShapeClick}
-      />,
-      <Image
-        key={1}
-        image={imageObj}
-        x={100}
-        y={100}
-        width={200}
-        height={150}
-        draggable
-        onClick={handleShapeClick}
-        onTap={handleShapeClick}
-      />,
-      <Image
-        key={1}
-        image={imgobj}
-        x={100}
-        y={100}
-        width={200}
-        height={150}
-        draggable
-        onClick={handleShapeClick}
-        onTap={handleShapeClick}
-      />,
-    ];
-    setContentState(initialContentState);
+    const initialImage = new window.Image();
+    initialImage.crossOrigin = "Anonymous";
+    initialImage.onload = () => {
+      setContentState([
+        <Text
+          key={0}
+          x={10}
+          y={10}
+          text="Hello"
+          fontSize={20}
+          fill="black"
+          draggable
+          onClick={handleShapeClick}
+          onTap={handleDoubleTap}
+          onDblTap={handleDoubleTap}
+          editable
+        />,
+        <Image
+          key={1}
+          image={initialImage}
+          x={300}
+          y={100}
+          width={200}
+          height={150}
+          draggable
+          onClick={handleShapeClick}
+          onTap={handleDoubleTap}
+        />,
+      ]);
+    };
+
+    initialImage.src =
+      "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg";
+
+    imageRef.current = initialImage;
 
     if (selectedShape && transformerRef.current) {
       if (
-        selectedShape.getClassName() === "Text" ||
-        selectedShape.getClassName() === "Image"
+        selectedShape &&
+        (selectedShape.getClassName() === "Text" ||
+          selectedShape.getClassName() === "Image")
       ) {
         transformerRef.current.nodes([selectedShape]);
         transformerRef.current.getLayer().batchDraw();
       }
-    } else if (transformerRef.current) {
-      transformerRef.current.nodes([]);
-      transformerRef.current.getLayer().batchDraw();
     }
   }, [selectedShape]);
 
-  const imageObj = new window.Image();
-  imageObj.crossOrigin = "Anonymous";
-  imageObj.src =
-    "https://images.pexels.com/photos/20080174/pexels-photo-20080174/free-photo-of-a-hedgehog-is-held-in-a-person-s-hand.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
+  const handleUndo = () => {
+    if (contentHistory.length > 1) {
+      const newHistory = [...contentHistory];
+      newHistory.pop();
+      setContentHistory(newHistory);
+      setContentState(newHistory[newHistory.length - 1]);
+    }
+  };
 
-  const imgobj = new window.Image();
-  imageObj.crossOrigin = "Anonymous";
-  imageObj.src =
-    "https://images.pexels.com/photos/20080174/pexels-photo-20080174/free-photo-of-a-hedgehog-is-held-in-a-person-s-hand.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
-
-  const handleUndo = () => {};
-
-  const handleRedo = () => {};
+  const handleRedo = () => {
+    if (contentHistory.length < contentState.length) {
+      const newHistory = [
+        ...contentHistory,
+        contentState[contentHistory.length],
+      ];
+      setContentHistory(newHistory);
+      setContentState(newHistory[newHistory.length - 1]);
+    }
+  };
 
   const handleZoomChange = (e) => {
     setZoomLevel(e.target.value);
@@ -83,86 +89,62 @@ const CanvasPage = () => {
 
   const handleStageMouseDown = (e) => {
     if (e.target === e.target.getStage()) {
+      if (transformerRef.current) {
+        setTimeout(() => {
+          transformerRef.current.nodes([]);
+          transformerRef.current.getLayer().batchDraw();
+        });
+      }
       setSelectedShape(null);
     }
   };
 
   const handleShapeClick = (e) => {
-    setSelectedShape(e.target);
+    const clickedOnWhiteBg =
+      e.target.getClassName() === "Rect" && e.target.getFill() === "white";
+
+    if (clickedOnWhiteBg) {
+      setSelectedShape(null);
+      transformerRef.current.nodes([]);
+      transformerRef.current.getLayer().batchDraw();
+    } else {
+      setSelectedShape(e.target);
+    }
   };
 
-  // const handleExportPDF = () => {
-  //   const stage = contentLayerRef.current.getStage();
+  const handleDoubleTap = (e) => {
+    const shape = e.target;
 
-  //   const pdf = new jsPDF({
-  //     orientation: "landscape",
-  //     unit: "px",
-  //     format: [stage.width(), stage.height()],
-  //   });
+    if (shape.getClassName() === "Text" || shape.getClassName() === "Image") {
+      setSelectedShape(shape);
 
-  //   const dataURL = stage.toDataURL({ pixelRatio: 2 });
+      if (transformerRef.current) {
+        transformerRef.current.nodes([shape]);
+        transformerRef.current.getLayer().batchDraw();
+      }
+    }
+  };
 
-  //   pdf.addImage(dataURL, "JPEG", 0, 0, stage.width(), stage.height());
+  const handleExportPDF = () => {
+    const stage = contentLayerRef.current.getStage();
 
-  //   pdf.save("certificate.pdf");
-  // };
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [stage.width(), stage.height()],
+    });
 
-  // const handleExportPNG = async () => {
-  //   const stage = contentLayerRef.current.getStage();
-  //   const pngDataURL = await downloadImage(imageObj.src);
-  //   stage.toDataURL({
-  //     pixelRatio: 2,
-  //     callback: (dataURL) => {
-  //       const link = document.createElement("a");
-  //       link.href = dataURL;
-  //       link.download = "certificate.png";
-  //       link.click();
-  //     },
-  //   });
-  // };
+    const dataURL = stage.toDataURL({ pixelRatio: 2 });
 
-  // const downloadImage = (url) => {
-  //   return new Promise((resolve, reject) => {
-  //     const img = new window.Image();
-  //     img.crossOrigin = "Anonymous";
+    pdf.addImage(dataURL, "JPEG", 0, 0, stage.width(), stage.height());
 
-  //     img.onload = () => {
-  //       const canvas = document.createElement("canvas");
-  //       const ctx = canvas.getContext("2d");
-  //       canvas.width = img.width;
-  //       canvas.height = img.height;
-  //       ctx.drawImage(img, 0, 0);
-  //       resolve(canvas.toDataURL("image/png"));
-  //     };
+    pdf.save("certificate.pdf");
+  };
 
-  //     img.onerror = reject;
-  //     img.src = url;
-  //   });
-  // };
-
-  const handleTextChange = () => {
+  const handleTextChange = (e) => {
     if (selectedShape && selectedShape.getClassName() === "Text") {
-      const updatedText = (
-        <Text
-          key={selectedShape.attrs.id}
-          x={selectedShape.attrs.x}
-          y={selectedShape.attrs.y}
-          text={selectedShape.attrs.text}
-          fontSize={selectedShape.attrs.fontSize}
-          fill={selectedShape.attrs.fill}
-          width={selectedShape.width() * selectedShape.scaleX()} // Adjust width based on scaleX
-          height={selectedShape.height() * selectedShape.scaleY()} // Adjust height based on scaleY
-          draggable
-          onClick={handleShapeClick}
-          onTap={handleShapeClick}
-        />
-      );
-
-      const updatedContentState = contentState.map((shape) =>
-        shape.key === selectedShape.attrs.id ? updatedText : shape
-      );
-
-      setContentState(updatedContentState);
+      selectedShape.text(e.target.value);
+      setContentState([...contentState]);
     }
   };
 
@@ -181,23 +163,30 @@ const CanvasPage = () => {
             fill="white"
             shadowBlur={0}
             onClick={handleShapeClick}
-            onTap={handleShapeClick}
+            onTap={handleDoubleTap}
           />
         </Layer>
         <Layer scaleX={zoomLevel} scaleY={zoomLevel}>
           {contentState.map((shape, index) => (
-            <React.Fragment key={index}>{shape}</React.Fragment>
+            <React.Fragment key={index}>
+              {React.cloneElement(shape, {
+                ref: textRef,
+                onDblTap: handleDoubleTap,
+                onTap: handleDoubleTap,
+                onClick: handleShapeClick,
+              })}
+            </React.Fragment>
           ))}
           {selectedShape && (
             <Transformer
               ref={transformerRef}
               boundBoxFunc={(oldBox, newBox) => {
-                // Limit resizing to not go below 5x5 pixels
                 if (newBox.width < 5 || newBox.height < 5) {
                   return oldBox;
                 }
                 return newBox;
               }}
+              draggable
             />
           )}
         </Layer>
@@ -230,15 +219,19 @@ const CanvasPage = () => {
           )}%`}</div>
         </div>
       </div>
-{/*       <div className="btn text-xs flex flex-col gap-y-8">
+      <div className="btn text-xs flex flex-col gap-y-8">
         <button onClick={handleExportPDF}>Export as PDF</button>
-        <button onClick={handleExportPNG}>Export as PNG</button>
-<<<<<<< HEAD
-        <button onClick={handleTextChange}> Change</button>
+        <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleRedo}>Redo</button>
+        {selectedShape && selectedShape.getClassName() === "Text" && (
+          <input
+            type="text"
+            placeholder="First Name"
+            value={selectedShape.text()}
+            onChange={handleTextChange}
+          />
+        )}
       </div>
-=======
-      </div> */}
->>>>>>> 1215fe2c7711563a66eb27c3fd85e27335f3aaf9
     </div>
   );
 };
