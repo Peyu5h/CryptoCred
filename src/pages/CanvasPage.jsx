@@ -21,6 +21,15 @@ const CanvasPage = ({ download, setDownload }) => {
     }
   }, [download]);
 
+  const backgroundImage = new window.Image();
+  backgroundImage.src =
+    "https://plus.unsplash.com/premium_photo-1675695700239-44153e6bf430?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  useEffect(() => {
+    backgroundImage.onload = () => {
+      contentLayerRef.current.batchDraw();
+    };
+  }, []);
+
   useEffect(() => {
     const initialImage = new window.Image();
     initialImage.crossOrigin = "Anonymous";
@@ -106,10 +115,10 @@ const CanvasPage = ({ download, setDownload }) => {
   };
 
   const handleShapeClick = (e) => {
-    const clickedOnWhiteBg =
-      e.target.getClassName() === "Rect" && e.target.getFill() === "white";
+    const clickedOnBackgroundImage =
+      e.target.getClassName() === "Rect" && e.target.fillPatternImage();
 
-    if (clickedOnWhiteBg) {
+    if (clickedOnBackgroundImage) {
       setSelectedShape(null);
       transformerRef.current.nodes([]);
       transformerRef.current.getLayer().batchDraw();
@@ -117,7 +126,6 @@ const CanvasPage = ({ download, setDownload }) => {
       setSelectedShape(e.target);
     }
   };
-
   const handleDoubleTap = (e) => {
     const shape = e.target;
 
@@ -166,7 +174,12 @@ const CanvasPage = ({ download, setDownload }) => {
           <Rect
             width={678}
             height={408}
-            fill="white"
+            fillPatternImage={backgroundImage}
+            fillPatternScale={{
+              x: 678 / backgroundImage.width,
+              y: 396 / backgroundImage.height,
+            }}
+            fillPatternRepeat="no-repeat"
             shadowBlur={0}
             onClick={handleShapeClick}
             onTap={handleDoubleTap}
