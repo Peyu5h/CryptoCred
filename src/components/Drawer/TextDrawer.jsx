@@ -30,7 +30,7 @@ const TextDrawer = ({ openText, setOpenText }) => {
     >
       <div className="flex items-center justify-between px-4 pb-2">
         <Typography variant="h5" color="blue-gray">
-          Select element
+          Text
         </Typography>
         <IconButton variant="text" color="blue-gray" onClick={handleClose}>
           <svg
@@ -51,37 +51,14 @@ const TextDrawer = ({ openText, setOpenText }) => {
       </div>
 
       <form className="flex flex-col gap-6 p-4">
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
-        <Button>TEXT</Button>
+        <Button>Add Text</Button>
+        <div className="inputBox my-4">
+          <input
+            type="text"
+            placeholder="First name"
+            className="border w-full px-3 py-4 rounded-lg outline-none text-dark"
+          />
+        </div>
       </form>
     </Drawer>
   );

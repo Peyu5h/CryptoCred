@@ -16,6 +16,9 @@
   background: #aeaeafa1;
   border-radius: 5px;
 }
+.custom-drawer-class::before {
+  backdrop-filter: blur(0px);
+}
 
 @tailwind base;
 @tailwind components;

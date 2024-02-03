@@ -13,6 +13,8 @@ const UploadPage = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [templateSelected, setTemplateSelected] = useState(false);
 
+  const [download, setDownload] = useState(false);
+
   const handleUpload = (files) => {
     try {
       setIsUploading(true);
@@ -50,7 +52,10 @@ const UploadPage = () => {
             {isWalletConnected ? (
               <>
                 {templateSelected == true && (
-                  <div className="saveBtn mr-6 cursor-pointer text-grn hover:bg-grn hover:dark duration-300 hover:text-dark bg-transparent border border-grn rounded-full  px-4 py-3">
+                  <div
+                    onClick={() => setDownload(true)}
+                    className="saveBtn mr-6 cursor-pointer text-grn hover:bg-grn hover:dark duration-300 hover:text-dark bg-transparent border border-grn rounded-full  px-4 py-3"
+                  >
                     Save & Upload
                   </div>
                 )}
@@ -188,7 +193,7 @@ const UploadPage = () => {
               )}
             </>
           ) : (
-            <CanvasPage />
+            <CanvasPage download={download} setDownload={setDownload} />
           )}
         </div>
       </div>

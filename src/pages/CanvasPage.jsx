@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { Stage, Layer, Text, Rect, Transformer, Image } from "react-konva";
 import { LuUndo2, LuRedo2 } from "react-icons/lu";
 import jsPDF from "jspdf";
-
-const CanvasPage = () => {
+import medal from "../../public/assets/medal.png";
+const CanvasPage = ({ download, setDownload }) => {
   const [contentState, setContentState] = useState([]);
   const [selectedShape, setSelectedShape] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -12,7 +12,14 @@ const CanvasPage = () => {
   const contentLayerRef = useRef();
   const transformerRef = useRef();
   const textRef = useRef();
-  const imageRef = useRef(); // Add this line
+  const imageRef = useRef();
+
+  useEffect(() => {
+    if (download) {
+      handleExportPDF();
+      setDownload(false);
+    }
+  }, [download]);
 
   useEffect(() => {
     const initialImage = new window.Image();
@@ -37,8 +44,8 @@ const CanvasPage = () => {
           image={initialImage}
           x={300}
           y={100}
-          width={200}
-          height={150}
+          width={150}
+          height={250}
           draggable
           onClick={handleShapeClick}
           onTap={handleDoubleTap}
@@ -46,8 +53,7 @@ const CanvasPage = () => {
       ]);
     };
 
-    initialImage.src =
-      "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg";
+    initialImage.src = medal;
 
     imageRef.current = initialImage;
 
@@ -196,11 +202,11 @@ const CanvasPage = () => {
         <div className="undoRedo flex text-xl gap-x-6 ml-4">
           <LuUndo2
             className="cursor-pointer rounded-full hover:bg-gray-500/15 p-1 text-[27px]"
-            onClick={handleUndo}
+            // onClick={handleUndo}
           />
           <LuRedo2
             className="cursor-pointer rounded-full hover:bg-gray-500/15 p-1 text-[27px]"
-            onClick={handleRedo}
+            // onClick={handleRedo}
           />
         </div>
         <div className="splitter mx-4 h-[75%] w-[0.5px] bg-gray-600"></div>
@@ -220,9 +226,9 @@ const CanvasPage = () => {
         </div>
       </div>
       <div className="btn text-xs flex flex-col gap-y-8">
-        <button onClick={handleExportPDF}>Export as PDF</button>
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
+        {/* <button onClick={handleExportPDF}>Export as PDF</button> */}
+        {/* <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleRedo}>Redo</button> */}
         {selectedShape && selectedShape.getClassName() === "Text" && (
           <input
             type="text"
