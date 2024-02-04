@@ -9,36 +9,43 @@ import CanvasPage from "./CanvasPage";
 
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [templateSelected, setTemplateSelected] = useState(false);
 
   const [download, setDownload] = useState(false);
 
-  const handleUpload = (files) => {
-    try {
-      setIsUploading(true);
-      setUploadedFiles(uploadedFiles.concat(files));
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleDragEnter = () => {
+  const handleDragEnter = (e) => {
+    e.preventDefault();
     setIsDragActive(true);
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e) => {
+    e.preventDefault();
     setIsDragActive(false);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragActive(false);
-    const files = Array.from(e.dataTransfer.files);
-    handleUpload(files);
+
+    const files = e.dataTransfer.files;
+    handleFile(files[0]);
+  };
+
+  const handleFileInputChange = (e) => {
+    const files = e.target.files;
+    handleFile(files[0]);
+  };
+
+  const handleFile = (file) => {
+    if (file && file.type === "image/png") {
+      setSelectedFile(file);
+    } else {
+      alert("Please select a valid PNG image file.");
+    }
   };
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -150,39 +157,59 @@ const UploadPage = () => {
                     </div>
                     {/* =========================== FILE UPLOAD  ============================= */}
                     <div
-                      className={`flex justify-center items-center w-full h-64 border-2 border-dashed rounded-lg p-5
-                    ${
-                      isDragActive
-                        ? "bg-sky-50 border-sky-400"
-                        : "border-gray-300"
-                    }`}
+                      className={`flex justify-center items-center w-full h-64 border-2 ${
+                        isDragActive ? "border" : "border-dashed"
+                      }  rounded-lg p-5
+                ${
+                  isDragActive ? "bg-sky-50 border-sky-400" : "border-gray-300"
+                }`}
                       onDragEnter={handleDragEnter}
                       onDragLeave={handleDragLeave}
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={handleDrop}
                     >
-                      <p
+                      <label
+                        htmlFor="fileInput"
                         className={`text-sm ${
                           isDragActive ? "text-sky-800" : "text-gray-400"
-                        }  `}
+                        }`}
                       >
-                        {isDragActive ? (
-                          "Leave Your File Here"
-                        ) : (
-                          <div className="flex flex-col gap-y-2">
-                            <SlCloudUpload className="text-6xl text-gray-400 mx-auto" />
-                            <span className="text-xl">
-                              Drag and drop or&nbsp;
-                              <span className="text-grn hover:underline cursor-pointer">
-                                Browse
-                              </span>
-                            </span>
-                            <span className="text-[10px] font-thin text-center text-overlay  text-gray-600">
-                              Supported format: jpg/png/pdf
-                            </span>
-                          </div>
-                        )}
-                      </p>
+                        {isDragActive
+                          ? "Leave Your File Here"
+                          : selectedFile == null && (
+                              <div className="flex flex-col gap-y-2">
+                                <SlCloudUpload className="text-6xl text-gray-400 mx-auto" />
+                                <span className="text-xl">
+                                  Drag and drop or&nbsp;
+                                  <span className="text-grn hover:underline cursor-pointer">
+                                    Browse
+                                  </span>
+                                </span>
+                                <span className="text-[10px] font-thin text-center text-overlay  text-gray-600">
+                                  Supported formats: jpg/png/pdf
+                                </span>
+                              </div>
+                            )}
+                      </label>
+                      <input
+                        type="file"
+                        id="fileInput"
+                        className="hidden"
+                        onChange={handleFileInputChange}
+                      />
+
+                      {selectedFile && (
+                        <div className="mt-3">
+                          <img
+                            src={URL.createObjectURL(selectedFile)}
+                            alt={selectedFile.name}
+                            className="max-h-32 mx-auto mb-2"
+                          />
+                          <p className=" text-gray-700 mx-auto text-center text-xs mt-4">
+                            {selectedFile.name}
+                          </p>
+                        </div>
+                      )}
                     </div>
                     {/* ======================================================== */}
                     <button className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600">
