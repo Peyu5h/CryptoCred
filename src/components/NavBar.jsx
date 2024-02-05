@@ -38,11 +38,11 @@ const NavBar = ({ templateSelected }) => {
   return (
     <div>
       <div className="nav h-[88vh] w-[18vw] bg-dark rounded-xl px-8 py-5 z-99">
-        <div className="logo p-2 bg-grn rounded-full text-black text-center font-int font-bold">
-          LOGO
+        <div className="logo p-2  rounded-full text-grn text-center text-2xl font-black uppercase font-oswald ">
+          CryptoCred
         </div>
 
-        <div className="splitter h-[0.5px] bg-overlay w-full my-8"></div>
+        <div className="splitter h-[0.5px] bg-overlay w-full mb-8 mt-6"></div>
 
         <div className="options flex flex-col gap-y-2 text-md uppercase font-hind">
           <NavLink to="/">

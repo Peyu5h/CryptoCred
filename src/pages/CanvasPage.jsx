@@ -17,9 +17,15 @@ const CanvasPage = ({ download, setDownload }) => {
   const [contentHistory, setContentHistory] = useState([]);
 
   const [fontFamily, setFontFamily] = useState("Arial");
-  const [fontWeight, setFontWeight] = useState("");
+  const [fontWeight, setFontWeight] = useState("300");
   const [textDecoration, setTextDecoration] = useState("none");
+  const [isItalic, setIsItalic] = useState(false);
   const [color, setColor] = useState("black");
+  const red = "#F44336";
+  const blue = "#2196F3";
+  const green = "#4CAF50";
+  const yellow = "#FFEB3B";
+  const grey = "#9E9E9E";
 
   const contentLayerRef = useRef();
   const transformerRef = useRef();
@@ -61,27 +67,16 @@ const CanvasPage = ({ download, setDownload }) => {
           x={10}
           y={10}
           text="Hello"
-          fontSize={20}
+          fontSize={34}
           fill={color}
-          fontFamily="inter"
-          fontStyle={fontWeight}
-          textDecoration="underline"
+          fontFamily={fontFamily}
+          fontStyle={isItalic ? `italic ${fontWeight}` : `${fontWeight}`}
+          textDecoration={textDecoration}
           draggable
           onClick={handleShapeClick}
           onTap={handleDoubleTap}
           onDblTap={handleDoubleTap}
           editable
-        />,
-        <Image
-          key={1}
-          image={initialImage}
-          x={300}
-          y={100}
-          width={150}
-          height={250}
-          draggable
-          onClick={handleShapeClick}
-          onTap={handleDoubleTap}
         />,
         <Image
           key={1}
@@ -111,7 +106,15 @@ const CanvasPage = ({ download, setDownload }) => {
         transformerRef.current.getLayer().batchDraw();
       }
     }
-  }, [selectedShape, color, fontWeight]);
+  }, [
+    selectedShape,
+    color,
+    fontWeight,
+    setColor,
+    isItalic,
+    textDecoration,
+    fontFamily,
+  ]);
 
   const handleUndo = () => {
     if (contentHistory.length > 1) {
@@ -231,6 +234,13 @@ const CanvasPage = ({ download, setDownload }) => {
     setTextElements([...textElements, newTextElement]);
   };
 
+  const removeAllStyles = () => {
+    setFontWeight("300");
+    setTextDecoration("none");
+    setColor("black");
+    setIsItalic(false);
+  };
+
   return (
     <div className="relative body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2 scrollbar items-center justify-center">
       <Stage
@@ -336,14 +346,19 @@ const CanvasPage = ({ download, setDownload }) => {
                 <div className="fontWeight text-[14px]   font-medium flex gap-x-4 my-4 mt-6 items-center justify-between ">
                   <h1 className="text-xs ">Font:</h1>
                   <select
-                    id="cars"
+                    id="font"
                     className="border w-[70%] rounded-lg px-2 py-3 outline-none  "
-                    name="cars"
+                    name="font"
+                    onChange={(e) => setFontFamily(e.target.value)}
                   >
-                    <option value="volvo">Arial</option>
-                    <option value="saab">Poppins</option>
-                    <option value="fiat">Inter</option>
-                    <option value="audi">Serif</option>
+                    <option value="arial">Arial</option>
+                    <option value="poppins">Poppins</option>
+                    <option value="inter">Inter</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Lucida Calligraphy">Calligraphy</option>
+                    <option value="oswald">oswald</option>
+                    <option value="Times New Roman">Times New Roman</option>
                   </select>
                 </div>
                 <div className="fontWeight text-[14px]   font-medium flex gap-x-4 my-4 items-center justify-between">
@@ -352,24 +367,34 @@ const CanvasPage = ({ download, setDownload }) => {
                     id="cars"
                     className="border w-[70%] rounded-lg px-2 py-3 outline-none "
                     name="cars"
+                    onChange={(e) => setFontWeight(e.target.value)}
                   >
-                    <option value="volvo">Regular</option>
-                    <option onSelect={() => setFontWeight("bold")} value="saab">
-                      Bold
-                    </option>
-                    <option value="fiat">Light</option>
-                    <option value="audi">Medium</option>
+                    <option value="400">Regular</option>
+                    <option value="500">Medium</option>
+                    <option value="200">Light</option>
+                    <option value="600">Bold</option>
+                    <option value="100">ExtraLight</option>
+                    <option value="800">Extra Bold</option>
                   </select>
                 </div>
 
                 <div className="decoration flex  justify-around text-lg my-8 border w-full py-3 rounded-lg">
-                  <button className="italic px-4 py-2 hover:bg-blue-gray-50 rounded-md">
+                  <button
+                    onClick={() => setIsItalic(!isItalic)}
+                    className="italic px-4 py-2 hover:bg-blue-gray-50 rounded-md"
+                  >
                     <FaItalic />
                   </button>
-                  <button className=" px-4 py-2 hover:bg-blue-gray-50 rounded-md">
+                  <button
+                    onClick={() => setTextDecoration("underline")}
+                    className=" px-4 py-2 hover:bg-blue-gray-50 rounded-md"
+                  >
                     <MdOutlineFormatUnderlined />
                   </button>
-                  <button className=" px-4 py-2 hover:bg-blue-gray-50 rounded-md">
+                  <button
+                    onClick={() => setTextDecoration("line-through")}
+                    className=" px-4 py-2 hover:bg-blue-gray-50 rounded-md"
+                  >
                     <MdOutlineFormatStrikethrough />
                   </button>
                 </div>
@@ -378,14 +403,32 @@ const CanvasPage = ({ download, setDownload }) => {
                   <div className="basicColors">
                     <div className="flex gap-x-4">
                       <div
-                        onChange={() => setColor("blue")}
+                        onClick={() => setColor(red)}
                         className="colorBox bg-red-500 rounded-lg cursor-pointer h-8 w-8"
                       ></div>
-                      <div className="colorBox bg-blue-500 rounded-lg cursor-pointer h-8 w-8"></div>
-                      <div className="colorBox bg-green-500 rounded-lg cursor-pointer h-8 w-8"></div>
-                      <div className="colorBox bg-yellow-500 rounded-lg cursor-pointer h-8 w-8"></div>
-                      <div className="colorBox bg-gray-500 rounded-lg cursor-pointer h-8 w-8"></div>
+                      <div
+                        onClick={() => setColor(blue)}
+                        className="colorBox bg-blue-500 rounded-lg cursor-pointer h-8 w-8"
+                      ></div>
+                      <div
+                        onClick={() => setColor(green)}
+                        className="colorBox bg-green-500 rounded-lg cursor-pointer h-8 w-8"
+                      ></div>
+                      <div
+                        onClick={() => setColor(yellow)}
+                        className="colorBox bg-yellow-500 rounded-lg cursor-pointer h-8 w-8"
+                      ></div>
+                      <div
+                        onClick={() => setColor(grey)}
+                        className="colorBox bg-gray-500 rounded-lg cursor-pointer h-8 w-8"
+                      ></div>
                     </div>
+                    <button
+                      onClick={removeAllStyles}
+                      className="text-md hover:bg-red-600 duration-300 bg-gray-400 text-white text-center w-full py-3 rounded-lg my-6"
+                    >
+                      Remove all Styles
+                    </button>
                   </div>
                 </div>
               </Drawer>
