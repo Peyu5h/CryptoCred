@@ -6,6 +6,8 @@ import { ScaleLoader } from "react-spinners";
 import { FeaturedImageGallery } from "../components/Carousel";
 import { SlCloudUpload } from "react-icons/sl";
 import CanvasPage from "./CanvasPage";
+import { ethers } from "ethers";
+
 
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
@@ -47,6 +49,25 @@ const UploadPage = () => {
       alert("Please select a valid PNG image file.");
     }
   };
+
+  
+    const connectToMetamask = async()=> {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const accounts = await provider.send("eth_requestAccounts", []);
+      this.setState({ selectedAddress: accounts[0] })
+    }
+  
+    const renderMetamask = async() => {
+      if (!this.state.selectedAddress) {
+        return (
+          <button onClick={() => this.connectToMetamask()}>Connect to Metamask</button>
+        )
+      } else {
+        return (
+          <p>Welcome {this.state.selectedAddress}</p>
+        );
+      }
+    }
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [dropDown, setDropDown] = useState(false);
@@ -116,7 +137,8 @@ const UploadPage = () => {
                 </div>
               </>
             ) : (
-              <div onClick={() => setIsWalletConnected(true)} className="">
+              // <div onClick={() => setIsWalletConnected(true)} className="">
+              <div onClick={connectToMetamask} className="">
                 <button className="px-4 py-2 border border-grn hover:bg-grn hover:text-dark font-semibold  transition-all duration-300 text-grn rounded-lg">
                   Connect
                 </button>
@@ -126,7 +148,7 @@ const UploadPage = () => {
           {templateSelected == false ? (
             <>
               {isWalletConnected == false && (
-                <div className="body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
+                <div onClick={()=> handl} className="body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
                   <span>Connect your wallet</span>
                   <span className="text-xl">To upload the certificate</span>
                   <ScaleLoader color="#52D858" className="mt-4" />
