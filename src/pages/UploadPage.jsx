@@ -51,23 +51,7 @@ const UploadPage = () => {
   };
 
   
-    const connectToMetamask = async()=> {
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const accounts = await provider.send("eth_requestAccounts", []);
-      this.setState({ selectedAddress: accounts[0] })
-    }
-  
-    const renderMetamask = async() => {
-      if (!this.state.selectedAddress) {
-        return (
-          <button onClick={() => this.connectToMetamask()}>Connect to Metamask</button>
-        )
-      } else {
-        return (
-          <p>Welcome {this.state.selectedAddress}</p>
-        );
-      }
-    }
+    
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [dropDown, setDropDown] = useState(false);
