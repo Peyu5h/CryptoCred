@@ -9,12 +9,16 @@ import { FaItalic } from "react-icons/fa";
 import { MdOutlineFormatUnderlined } from "react-icons/md";
 import { BsFonts } from "react-icons/bs";
 import { MdOutlineFormatStrikethrough } from "react-icons/md";
+import Konva from "konva";
 
 const CanvasPage = ({ download, setDownload }) => {
   const [contentState, setContentState] = useState([]);
   const [selectedShape, setSelectedShape] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [contentHistory, setContentHistory] = useState([]);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [isDoubleClick, setIsDoubleClick] = useState(false);
+  const [updateNewText, setUpdateNewText] = useState(false);
 
   const [fontFamily, setFontFamily] = useState("Arial");
   const [fontWeight, setFontWeight] = useState("300");
@@ -51,33 +55,46 @@ const CanvasPage = ({ download, setDownload }) => {
 
   useEffect(() => {
     if (selectedShape && selectedShape.getClassName() === "Text") {
-      setOpen(true);
-    } else {
-      setOpen(false);
+      if (selectedShape instanceof Konva.Text) {
+        selectedShape.setAttrs({
+          fill: color,
+          fontFamily: fontFamily,
+          fontStyle: isItalic ? `${fontWeight} italic` : "normal",
+          textDecoration: textDecoration,
+        });
+
+        contentLayerRef.current && contentLayerRef.current.batchDraw();
+      }
     }
-  }, [selectedShape]);
+  }, [color, fontFamily, fontWeight, isItalic, selectedShape, textDecoration]);
 
   useEffect(() => {
     const initialImage = new window.Image();
     initialImage.crossOrigin = "Anonymous";
     initialImage.onload = () => {
       setContentState([
-        <Text
-          key={0}
-          x={10}
-          y={10}
-          text="Hello"
-          fontSize={34}
-          fill={color}
-          fontFamily={fontFamily}
-          fontStyle={isItalic ? `italic ${fontWeight}` : `${fontWeight}`}
-          textDecoration={textDecoration}
-          draggable
-          onClick={handleShapeClick}
-          onTap={handleDoubleTap}
-          onDblTap={handleDoubleTap}
-          editable
-        />,
+        ...textElements.map((textElement) => (
+          <Text
+            key={textElement.id}
+            x={textElement.x}
+            y={textElement.y}
+            text={textElement.text}
+            fontSize={textElement.fontSize}
+            fill={textElement.color}
+            fontFamily={textElement.fontFamily}
+            fontStyle={`${
+              textElement.isItalic
+                ? `italic ${textElement.fontWeight}`
+                : `${textElement.fontWeight}`
+            } `}
+            textDecoration={textElement.textDecoration}
+            draggable
+            onClick={handleShapeClick}
+            onTap={handleDoubleTap}
+            onDblTap={handleDoubleTap}
+            editable
+          />
+        )),
         <Image
           key={1}
           image={initialImage}
@@ -93,7 +110,6 @@ const CanvasPage = ({ download, setDownload }) => {
     };
 
     initialImage.src = medal;
-
     imageRef.current = initialImage;
 
     if (selectedShape && transformerRef.current) {
@@ -114,6 +130,7 @@ const CanvasPage = ({ download, setDownload }) => {
     isItalic,
     textDecoration,
     fontFamily,
+    updateNewText,
   ]);
 
   const handleUndo = () => {
@@ -162,9 +179,22 @@ const CanvasPage = ({ download, setDownload }) => {
       transformerRef.current.getLayer().batchDraw();
     } else {
       setSelectedShape(e.target);
+
+      // Check for double-click
+      const timeThreshold = 300; // Set your preferred time threshold for double-click
+      const currentTime = new Date();
+      const clickTimeDifference = currentTime - lastClickTime;
+
+      if (clickTimeDifference < timeThreshold) {
+        handleDoubleTap(e);
+      }
+
+      setLastClickTime(currentTime);
     }
   };
+
   const handleDoubleTap = (e) => {
+    setIsDoubleClick(true);
     const shape = e.target;
 
     if (shape.getClassName() === "Text" || shape.getClassName() === "Image") {
@@ -174,7 +204,14 @@ const CanvasPage = ({ download, setDownload }) => {
         transformerRef.current.nodes([shape]);
         transformerRef.current.getLayer().batchDraw();
       }
+
+      setOpen(true);
     }
+
+    // Reset double-click state after a short delay
+    setTimeout(() => {
+      setIsDoubleClick(false);
+    }, 500); // Adjust the timeout as needed
   };
 
   const handleExportPDF = () => {
@@ -232,6 +269,7 @@ const CanvasPage = ({ download, setDownload }) => {
       fontSize: 20,
     };
     setTextElements([...textElements, newTextElement]);
+    setUpdateNewText(true);
   };
 
   const removeAllStyles = () => {
@@ -333,7 +371,10 @@ const CanvasPage = ({ download, setDownload }) => {
                 width={275}
                 style={{ backgroundColor: "#F9FCFB" }}
               >
-                <button className="mb-4 bg-dark text-white text-center w-full py-3 rounded-lg">
+                <button
+                  onClick={handleAddText}
+                  className="mb-4 bg-dark text-white text-center w-full py-3 rounded-lg"
+                >
                   Add Text
                 </button>
                 <input

@@ -50,6 +50,36 @@ const UploadPage = () => {
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [dropDown, setDropDown] = useState(false);
+
+  //========== MetaMask Connect ========== //
+  const [address, setAddress] = useState("");
+
+  const metamaskConnect = async () => {
+    try {
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setAddress(accounts[0]);
+        setIsWalletConnected(true);
+      } else {
+        alert("Please install MetaMask!");
+      }
+    } catch (err) {
+      console.log(err);
+      setIsWalletConnected(false);
+    }
+  };
+
+  const metamaskDisconnect = () => {
+    try {
+      setIsWalletConnected(false);
+      setAddress("");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div>
       <div className="flex gap-x-8 font-int">
@@ -79,7 +109,7 @@ const UploadPage = () => {
                       </div>
 
                       <div className="font-oswald ml-2 overflow-hidden whitespace-nowrap max-w-[5.5rem] truncate">
-                        0x123abcdefghijk
+                        {address}
                       </div>
                     </div>
                     <div
@@ -104,7 +134,7 @@ const UploadPage = () => {
                           </div>
                           <div className="splitter h-[0.5px] w-full bg-overlayLight"></div>
                           <div
-                            onClick={() => setIsWalletConnected(false)}
+                            onClick={metamaskDisconnect}
                             className="Logout px-3 py-3  hover:bg-grn hover:text-dark cursor-pointer rounded-b-xl duration-300"
                           >
                             Logout
@@ -116,7 +146,7 @@ const UploadPage = () => {
                 </div>
               </>
             ) : (
-              <div onClick={() => setIsWalletConnected(true)} className="">
+              <div onClick={metamaskConnect} className="">
                 <button className="px-4 py-2 border border-grn hover:bg-grn hover:text-dark font-semibold  transition-all duration-300 text-grn rounded-lg">
                   Connect
                 </button>
