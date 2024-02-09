@@ -13,6 +13,16 @@ import Konva from "konva";
 
 // ========================
 import template1 from "../../public/assets/template1.png";
+import { useAtom } from "jotai";
+import {
+  CanvasNav,
+  browseAtom,
+  drawAtom,
+  logoAtom,
+  textAtom,
+} from "../Atom/atom";
+
+// ===========================
 
 const CanvasPage = ({ download, setDownload }) => {
   const [contentState, setContentState] = useState([]);
@@ -39,9 +49,16 @@ const CanvasPage = ({ download, setDownload }) => {
   const textRef = useRef();
   const imageRef = useRef();
 
+  // ========= JOTAI ==========
+  const [canvasNavState, setCanvasNavState] = useAtom(CanvasNav);
+  const [text, setText] = useAtom(textAtom);
+  const [logo, setLogo] = useAtom(logoAtom);
+  const [draw, setDraw] = useAtom(drawAtom);
+  const [browse, setBrowse] = useAtom(browseAtom);
+
   useEffect(() => {
     if (download) {
-      handleExportPDF();
+      handleExportPNG();
       setDownload(false);
     }
   }, [download]);
@@ -98,17 +115,17 @@ const CanvasPage = ({ download, setDownload }) => {
             editable
           />
         )),
-        // <Image
-        //   key={1}
-        //   image={initialImage}
-        //   x={300}
-        //   y={100}
-        //   width={150}
-        //   height={250}
-        //   draggable
-        //   onClick={handleShapeClick}
-        //   onTap={handleDoubleTap}
-        // />,
+        <Image
+          key={1}
+          image={initialImage}
+          x={300}
+          y={100}
+          width={150}
+          height={250}
+          draggable
+          onClick={handleShapeClick}
+          onTap={handleDoubleTap}
+        />,
       ]);
     };
 
@@ -135,6 +152,8 @@ const CanvasPage = ({ download, setDownload }) => {
     fontFamily,
     updateNewText,
   ]);
+
+  console.log(text, logo, draw, browse);
 
   const handleUndo = () => {
     if (contentHistory.length > 1) {
@@ -198,6 +217,8 @@ const CanvasPage = ({ download, setDownload }) => {
 
   const handleDoubleTap = (e) => {
     setIsDoubleClick(true);
+    setText(true);
+
     const shape = e.target;
 
     if (shape.getClassName() === "Text" || shape.getClassName() === "Image") {
@@ -211,26 +232,25 @@ const CanvasPage = ({ download, setDownload }) => {
       setOpen(true);
     }
 
-    // Reset double-click state after a short delay
     setTimeout(() => {
       setIsDoubleClick(false);
-    }, 500); // Adjust the timeout as needed
+    }, 500);
   };
 
-  const handleExportPDF = () => {
+  const handleExportPNG = () => {
     const stage = contentLayerRef.current.getStage();
-
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "px",
-      format: [stage.width(), stage.height()],
-    });
 
     const dataURL = stage.toDataURL({ pixelRatio: 2 });
 
-    pdf.addImage(dataURL, "JPEG", 0, 0, stage.width(), stage.height());
+    // Create an anchor element to trigger the download
+    const downloadLink = document.createElement("a");
+    downloadLink.href = dataURL;
+    downloadLink.download = "certificate.png";
 
-    pdf.save("certificate.pdf");
+    // Trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   };
 
   const handleTextChange = (e) => {

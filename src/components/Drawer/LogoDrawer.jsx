@@ -6,6 +6,9 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 
+import template from "../../../public/assets/template2.png";
+import Item from "antd/es/list/Item";
+
 const LogoDrawer = ({ openLogo, setOpenLogo }) => {
   const [localOpenText, setLocalOpenText] = useState(openLogo);
 
@@ -49,18 +52,15 @@ const LogoDrawer = ({ openLogo, setOpenLogo }) => {
           </svg>
         </IconButton>
       </div>
-
-      <form className="flex flex-col gap-6 p-4">
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-        <Button>LOGO</Button>
-      </form>
+      <div className="px-3 flex flex-col gap-y-4 mx-auto">
+        <img className="rounded-md cursor-pointer" src={template} alt="" />
+        <img className="rounded-md cursor-pointer" src={template} alt="" />
+        <img className="rounded-md cursor-pointer" src={template} alt="" />
+        <img className="rounded-md cursor-pointer" src={template} alt="" />
+        <img className="rounded-md cursor-pointer" src={template} alt="" />
+        <img className="rounded-md cursor-pointer" src={template} alt="" />
+        <img className="rounded-md cursor-pointer" src={template} alt="" />
+      </div>
     </Drawer>
   );
 };

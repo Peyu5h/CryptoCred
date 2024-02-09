@@ -7,10 +7,24 @@ import { NavLink, useLocation } from "react-router-dom";
 import { RxText } from "react-icons/rx";
 import { IoIosDocument } from "react-icons/io";
 import { MdDraw } from "react-icons/md";
-import TextDrawer from "./Drawer/TextDrawer";
 import LogoDrawer from "./Drawer/LogoDrawer";
 
+import { useAtom } from "jotai";
+import {
+  CanvasNav,
+  textAtom,
+  logoAtom,
+  drawAtom,
+  browseAtom,
+} from "../Atom/atom";
+
 const NavBar = ({ templateSelected }) => {
+  const [canvasNavState, setCanvasNavState] = useAtom(CanvasNav);
+  const [text, setText] = useAtom(textAtom);
+  const [logo, setLogo] = useAtom(logoAtom);
+  const [draw, setDraw] = useAtom(drawAtom);
+  const [browse, setBrowse] = useAtom(browseAtom);
+
   const [active, setActive] = useState("");
   const location = useLocation();
   console.log(templateSelected);
@@ -28,12 +42,34 @@ const NavBar = ({ templateSelected }) => {
 
   const handleTextDrawer = () => {
     setCanvasActive("text");
-    setOpenText(true);
+    setText(true);
+    setLogo(false);
+    setDraw(false);
+    setBrowse(false);
   };
 
   const handleLogoDrawer = () => {
     setCanvasActive("logo");
-    setOpenLogo(true);
+    setLogo(true);
+    setText(false);
+    setDraw(false);
+    setBrowse(false);
+  };
+
+  const handleDraw = () => {
+    setCanvasActive("draw");
+    setDraw(true);
+    setText(false);
+    setLogo(false);
+    setBrowse(false);
+  };
+
+  const handleBrowse = () => {
+    setCanvasActive("browse");
+    setBrowse(true);
+    setText(false);
+    setLogo(false);
+    setDraw(false);
   };
   return (
     <div>
@@ -105,7 +141,9 @@ const NavBar = ({ templateSelected }) => {
               <div
                 onClick={handleTextDrawer}
                 className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
-                  canvasActive === "text" ? "bg-activeNav text-grn" : ""
+                  canvasActive === "text" || text == true
+                    ? "bg-activeNav text-grn"
+                    : ""
                 }`}
               >
                 <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
@@ -113,27 +151,26 @@ const NavBar = ({ templateSelected }) => {
                   <RxText className="mb-1" />
                   <div className="option">Text</div>
                 </div>
-                {canvasActive === "text" ? (
+                {canvasActive === "text" || text == true ? (
                   <FaAngleRight className="text-light" />
                 ) : (
                   ""
                 )}
               </div>
-              {openText && (
-                <TextDrawer openText={openText} setOpenText={setOpenText} />
-              )}
 
               <div
                 onClick={handleLogoDrawer}
                 className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
-                  canvasActive === "logo" ? "bg-activeNav text-grn" : ""
+                  canvasActive === "logo" || logo == true
+                    ? "bg-activeNav text-grn"
+                    : ""
                 }`}
               >
                 <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
                   <IoIosDocument className="mb-1" />
                   <div className="option">Logo</div>
                 </div>
-                {canvasActive === "logo" ? (
+                {canvasActive === "logo" || logo == true ? (
                   <FaAngleRight className="text-light" />
                 ) : (
                   ""
@@ -144,16 +181,18 @@ const NavBar = ({ templateSelected }) => {
               )}
 
               <div
-                onClick={() => setCanvasActive("draw")}
+                onClick={handleDraw}
                 className={`flex justify-between items-center rounded-full px-6 cursor-pointer  ${
-                  canvasActive === "draw" ? "bg-activeNav text-grn" : ""
+                  canvasActive === "draw" || draw == true
+                    ? "bg-activeNav text-grn"
+                    : ""
                 }`}
               >
                 <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
                   <MdDraw className="mb-1" />
                   <div className="option">Draw</div>
                 </div>
-                {canvasActive === "draw" ? (
+                {canvasActive === "draw" || draw == true ? (
                   <FaAngleRight className="text-light" />
                 ) : (
                   ""
@@ -161,16 +200,18 @@ const NavBar = ({ templateSelected }) => {
               </div>
 
               <div
-                onClick={() => setCanvasActive("browse")}
+                onClick={handleBrowse}
                 className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
-                  canvasActive === "browse" ? "bg-activeNav text-grn" : ""
+                  canvasActive === "browse" || browse == true
+                    ? "bg-activeNav text-grn"
+                    : ""
                 }`}
               >
                 <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
                   <FiUpload className="mb-1" />
                   <div className="option">Browse</div>
                 </div>
-                {canvasActive === "browse" ? (
+                {canvasActive === "browse" || browse == true ? (
                   <FaAngleRight className="text-light" />
                 ) : (
                   ""

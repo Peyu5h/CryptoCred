@@ -7,6 +7,7 @@ import { FeaturedImageGallery } from "../components/Carousel";
 import { SlCloudUpload } from "react-icons/sl";
 import CanvasPage from "./CanvasPage";
 import { RxCross2 } from "react-icons/rx";
+import { BiSolidFilePdf } from "react-icons/bi";
 
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
@@ -41,10 +42,13 @@ const UploadPage = () => {
   };
 
   const handleFile = (file) => {
-    if (file && file.type === "image/png") {
+    if (
+      file &&
+      (file.type === "image/png" || file.type === "application/pdf")
+    ) {
       setSelectedFile(file);
     } else {
-      alert("Please select a valid PNG image file.");
+      alert("Please select a valid PNG or PDF file.");
     }
   };
 
@@ -251,8 +255,8 @@ const UploadPage = () => {
                                     Browse
                                   </span>
                                 </span>
-                                <span className="text-[10px] font-thin text-center text-overlay  text-gray-600">
-                                  Supported formats: jpg/png/pdf
+                                <span className="text-[11px] font-thin text-center text-overlay  text-gray-400">
+                                  Supported formats: png/pdf
                                 </span>
                               </div>
                             )}
@@ -272,11 +276,17 @@ const UploadPage = () => {
                           >
                             <RxCross2 className="text-2xl" />
                           </div>
-                          <img
-                            src={URL.createObjectURL(selectedFile)}
-                            alt={selectedFile.name}
-                            className="max-h-32 mx-auto mb-2"
-                          />
+                          {selectedFile.type === "image/png" ? (
+                            <img
+                              src={URL.createObjectURL(selectedFile)}
+                              alt={selectedFile.name}
+                              className="max-h-32 mx-auto mb-2"
+                            />
+                          ) : selectedFile.type === "application/pdf" ? (
+                            <div className="flex flex-col items-center">
+                              <BiSolidFilePdf className="text-6xl text-red-500 mx-auto" />
+                            </div>
+                          ) : null}
                           <p className=" text-gray-700 mx-auto text-center text-xs mt-4">
                             {selectedFile.name}
                           </p>

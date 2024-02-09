@@ -2,6 +2,8 @@ import { useState } from "react";
 import NavBar from "../components/NavBar";
 import { SlCloudUpload } from "react-icons/sl";
 import { MoonLoader, RingLoader, ScaleLoader } from "react-spinners";
+import { RxCross2 } from "react-icons/rx";
+import { BiSolidFilePdf } from "react-icons/bi";
 
 const VerifyPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
@@ -32,12 +34,16 @@ const VerifyPage = () => {
   };
 
   const handleFile = (file) => {
-    if (file && file.type === "image/png") {
+    if (
+      file &&
+      (file.type === "image/png" || file.type === "application/pdf")
+    ) {
       setSelectedFile(file);
     } else {
-      alert("Please select a valid PNG image file.");
+      alert("Please select a valid PNG or PDF file.");
     }
   };
+
   return (
     <div>
       <div className="flex gap-x-8">
@@ -48,7 +54,7 @@ const VerifyPage = () => {
               Upload your certificate to verify
             </div>
             <div
-              className={`flex justify-center items-center w-full h-64 border-2 ${
+              className={`flex relative justify-center items-center w-full h-64 border-2 ${
                 isDragActive ? "border" : "border-dashed"
               }  rounded-lg p-5
                 ${
@@ -70,14 +76,14 @@ const VerifyPage = () => {
                   : selectedFile == null && (
                       <div className="flex flex-col gap-y-2">
                         <SlCloudUpload className="text-6xl text-gray-400 mx-auto" />
-                        <span className="text-xl">
+                        <span className="text-xl text-center">
                           Drag and drop or&nbsp;
                           <span className="text-grn hover:underline cursor-pointer">
                             Browse
                           </span>
                         </span>
-                        <span className="text-[10px] font-thin text-center text-overlay  text-gray-600">
-                          Supported formats: jpg/png/pdf
+                        <span className="text-[11px] font-thin text-center text-overlay  text-gray-400">
+                          Supported formats: png/pdf
                         </span>
                       </div>
                     )}
@@ -91,11 +97,23 @@ const VerifyPage = () => {
 
               {selectedFile && (
                 <div className="mt-3">
-                  <img
-                    src={URL.createObjectURL(selectedFile)}
-                    alt={selectedFile.name}
-                    className="max-h-32 mx-auto mb-2"
-                  />
+                  <div
+                    onClick={() => setSelectedFile(null)}
+                    className="absolute top-0 right-0 mt-3 mr-4 cursor-pointer"
+                  >
+                    <RxCross2 className="text-2xl" />
+                  </div>
+                  {selectedFile.type === "image/png" ? (
+                    <img
+                      src={URL.createObjectURL(selectedFile)}
+                      alt={selectedFile.name}
+                      className="max-h-32 mx-auto mb-2"
+                    />
+                  ) : selectedFile.type === "application/pdf" ? (
+                    <div className="flex flex-col items-center">
+                      <BiSolidFilePdf className="text-6xl text-red-500 mx-auto" />
+                    </div>
+                  ) : null}
                   <p className=" text-gray-700 mx-auto text-center text-xs mt-4">
                     {selectedFile.name}
                   </p>
