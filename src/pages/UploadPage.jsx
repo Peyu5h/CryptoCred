@@ -80,6 +80,43 @@ const UploadPage = () => {
     }
   };
 
+  // ========== IPFS Upload =========== //
+
+  const handleIPFS = async (e) => {
+    e.preventDefault();
+    try {
+      const fileData = new FormData();
+      fileData.append("file", selectedFile);
+
+      const pinResponse = await fetch(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        {
+          method: "POST",
+          headers: {
+            pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
+            pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET,
+          },
+          body: fileData,
+        }
+      );
+
+      const responseData = await pinResponse.json();
+      console.log("Pin Response:", responseData);
+
+      const ipfsHash = responseData.IpfsHash;
+      const duplicate = responseData.isDuplicate;
+
+      if (duplicate) {
+        console.log("File already exists on IPFS:", ipfsHash);
+      } else {
+        const fileURL = "https://gateway.pinata.cloud/ipfs/" + ipfsHash;
+        console.log("File uploaded to IPFS:", fileURL);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       <div className="flex gap-x-8 font-int">
@@ -242,7 +279,10 @@ const UploadPage = () => {
                       )}
                     </div>
                     {/* ======================================================== */}
-                    <button className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600">
+                    <button
+                      onClick={handleIPFS}
+                      className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
+                    >
                       UPLOAD
                     </button>
                   </div>
