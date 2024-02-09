@@ -11,6 +11,9 @@ import { BsFonts } from "react-icons/bs";
 import { MdOutlineFormatStrikethrough } from "react-icons/md";
 import Konva from "konva";
 
+// ========================
+import template1 from "../../public/assets/template1.png";
+
 const CanvasPage = ({ download, setDownload }) => {
   const [contentState, setContentState] = useState([]);
   const [selectedShape, setSelectedShape] = useState(null);
@@ -45,8 +48,8 @@ const CanvasPage = ({ download, setDownload }) => {
 
   const backgroundImage = new window.Image();
   backgroundImage.crossOrigin = "Anonymous";
-  backgroundImage.src =
-    "https://plus.unsplash.com/premium_photo-1675695700239-44153e6bf430?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  backgroundImage.src = template1;
+  // "https://plus.unsplash.com/premium_photo-1675695700239-44153e6bf430?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   useEffect(() => {
     backgroundImage.onload = () => {
       contentLayerRef.current.batchDraw();
@@ -95,17 +98,17 @@ const CanvasPage = ({ download, setDownload }) => {
             editable
           />
         )),
-        <Image
-          key={1}
-          image={initialImage}
-          x={300}
-          y={100}
-          width={150}
-          height={250}
-          draggable
-          onClick={handleShapeClick}
-          onTap={handleDoubleTap}
-        />,
+        // <Image
+        //   key={1}
+        //   image={initialImage}
+        //   x={300}
+        //   y={100}
+        //   width={150}
+        //   height={250}
+        //   draggable
+        //   onClick={handleShapeClick}
+        //   onTap={handleDoubleTap}
+        // />,
       ]);
     };
 
@@ -245,14 +248,77 @@ const CanvasPage = ({ download, setDownload }) => {
   const [textElements, setTextElements] = useState([
     {
       id: 0,
-      text: "Hello",
+      text: "Name",
+      fontFamily: "Lucida Calligraphy",
+      fontWeight: "",
+      textDecoration: "none",
+      color: "black",
+      x: 195,
+      y: 145,
+      fontSize: 32,
+    },
+    {
+      id: 1,
+      text: "Surname",
+      fontFamily: "Lucida Calligraphy",
+      fontWeight: "",
+      textDecoration: "none",
+      color: "black",
+      x: 330,
+      y: 145,
+      fontSize: 32,
+    },
+    {
+      id: 2,
+      text: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. ",
       fontFamily: "Arial",
       fontWeight: "",
       textDecoration: "none",
       color: "black",
-      x: 10,
-      y: 10,
-      fontSize: 20,
+      x: 145,
+      y: 212,
+      fontSize: 16,
+      width: 200,
+      wrap: "char",
+    },
+    {
+      id: 3,
+      text: "Lorem ipsum dolor sit.",
+      fontFamily: "Arial",
+      fontWeight: "",
+      textDecoration: "none",
+      color: "black",
+      x: 260,
+      y: 240,
+      fontSize: 16,
+      width: 200,
+      wrap: "char",
+    },
+    {
+      id: 4,
+      text: "DATE",
+      fontFamily: "Arial",
+      fontWeight: "400",
+      textDecoration: "none",
+      color: "black",
+      x: 170,
+      y: 320,
+      fontSize: 16,
+      width: 200,
+      wrap: "char",
+    },
+    {
+      id: 4,
+      text: "SIGN",
+      fontFamily: "Arial",
+      fontWeight: "400",
+      textDecoration: "none",
+      color: "black",
+      x: 424,
+      y: 320,
+      fontSize: 16,
+      width: 200,
+      wrap: "char",
     },
   ]);
 

@@ -6,13 +6,13 @@ import { ScaleLoader } from "react-spinners";
 import { FeaturedImageGallery } from "../components/Carousel";
 import { SlCloudUpload } from "react-icons/sl";
 import CanvasPage from "./CanvasPage";
+import { RxCross2 } from "react-icons/rx";
 
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [templateSelected, setTemplateSelected] = useState(false);
 
   const [download, setDownload] = useState(false);
@@ -101,7 +101,6 @@ const UploadPage = () => {
       );
 
       const responseData = await pinResponse.json();
-      console.log("Pin Response:", responseData);
 
       const ipfsHash = responseData.IpfsHash;
       const duplicate = responseData.isDuplicate;
@@ -224,7 +223,7 @@ const UploadPage = () => {
                     </div>
                     {/* =========================== FILE UPLOAD  ============================= */}
                     <div
-                      className={`flex justify-center items-center w-full h-64 border-2 ${
+                      className={`flex relative justify-center items-center w-full h-64 border-2 ${
                         isDragActive ? "border" : "border-dashed"
                       }  rounded-lg p-5
                 ${
@@ -246,7 +245,7 @@ const UploadPage = () => {
                           : selectedFile == null && (
                               <div className="flex flex-col gap-y-2">
                                 <SlCloudUpload className="text-6xl text-gray-400 mx-auto" />
-                                <span className="text-xl">
+                                <span className="text-xl text-center">
                                   Drag and drop or&nbsp;
                                   <span className="text-grn hover:underline cursor-pointer">
                                     Browse
@@ -267,6 +266,12 @@ const UploadPage = () => {
 
                       {selectedFile && (
                         <div className="mt-3">
+                          <div
+                            onClick={() => setSelectedFile(null)}
+                            className="absolute top-0 right-0 mt-3 mr-4 cursor-pointer"
+                          >
+                            <RxCross2 className="text-2xl" />
+                          </div>
                           <img
                             src={URL.createObjectURL(selectedFile)}
                             alt={selectedFile.name}
