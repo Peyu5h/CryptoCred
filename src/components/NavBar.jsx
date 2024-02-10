@@ -1,7 +1,7 @@
 import { GoHomeFill } from "react-icons/go";
 import { FiUpload } from "react-icons/fi";
 import { GrDocumentVerified } from "react-icons/gr";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaAngleRight } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
 import { RxText } from "react-icons/rx";
@@ -16,6 +16,7 @@ import {
   logoAtom,
   drawAtom,
   browseAtom,
+  logoItems,
 } from "../Atom/atom";
 
 const NavBar = ({ templateSelected }) => {
@@ -24,6 +25,7 @@ const NavBar = ({ templateSelected }) => {
   const [logo, setLogo] = useAtom(logoAtom);
   const [draw, setDraw] = useAtom(drawAtom);
   const [browse, setBrowse] = useAtom(browseAtom);
+  const [item, setItem] = useAtom(logoItems);
 
   const [active, setActive] = useState("");
   const location = useLocation();
@@ -63,6 +65,9 @@ const NavBar = ({ templateSelected }) => {
     setLogo(false);
     setBrowse(false);
   };
+  const fileInputRef = useRef(null);
+  const url =
+    "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=1912&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
   const handleBrowse = () => {
     setCanvasActive("browse");
@@ -70,7 +75,15 @@ const NavBar = ({ templateSelected }) => {
     setText(false);
     setLogo(false);
     setDraw(false);
+    fileInputRef.current.click();
   };
+  const handleFileSelect = (event) => {
+    const fileInput = event.target;
+    const files = fileInput.files;
+
+    // console.log(files);
+  };
+
   return (
     <div>
       <div className="nav h-[88vh] w-[18vw] bg-dark rounded-xl px-8 py-5 z-99">
@@ -197,24 +210,33 @@ const NavBar = ({ templateSelected }) => {
                 )}
               </div>
 
-              <div
-                onClick={handleBrowse}
-                className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
-                  canvasActive === "browse" || browse == true
-                    ? "bg-activeNav text-grn"
-                    : ""
-                }`}
-              >
-                <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
-                  <FiUpload className="mb-1" />
-                  <div className="option">Browse</div>
+              <form action="">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleFileSelect}
+                />
+                <div
+                  onClick={handleBrowse}
+                  className={` flex justify-between items-center rounded-full px-6 cursor-pointer ${
+                    canvasActive === "browse" || browse == true
+                      ? "bg-activeNav text-grn"
+                      : ""
+                  }`}
+                >
+                  <div className="div flex items-center gap-x-2 pt-4 pb-3 rounded-full">
+                    <FiUpload className="mb-1" />
+                    <div className="option">Browse</div>
+                  </div>
+                  {canvasActive === "browse" || browse == true ? (
+                    <FaAngleRight className="text-light" />
+                  ) : (
+                    ""
+                  )}
                 </div>
-                {canvasActive === "browse" || browse == true ? (
-                  <FaAngleRight className="text-light" />
-                ) : (
-                  ""
-                )}
-              </div>
+              </form>
             </div>
           </>
         ) : null}
