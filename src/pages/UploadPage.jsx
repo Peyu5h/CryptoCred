@@ -157,15 +157,36 @@ const UploadPage = () => {
     try {
       const contract = new ethers.Contract(contractAddress, ABI, wallet);
 
-      const transaction = await contract.addCertificate(
+      // Prepare the transaction data
+      const transactionData = await contract.populateTransaction.addCertificate(
         ipfsHash,
         name,
         description
       );
 
-      await transaction.wait();
+      // Manually set the gas limit (you can adjust this value based on your needs)
+      const gasLimit = 200000; // Example gas limit value
+
+      // Send the transaction with the manually set gas limit
+      const transaction = await wallet.sendTransaction({
+        to: contractAddress,
+        data: transactionData.data,
+        gasLimit: ethers.utils.hexlify(gasLimit),
+      });
+
+      const receipt = await transaction.wait();
+
+      // Notify the user that the transaction was successful
+      notify("Certificate uploaded to blockchain", "success");
+
+      // Clear the form fields
+      setName("");
+      setDescription("");
+      setSelectedFile(null);
     } catch (error) {
       console.error(error);
+      // Notify the user if there was an error
+      notify("Error uploading certificate to blockchain", "error");
     }
   }
 
@@ -182,7 +203,6 @@ const UploadPage = () => {
       if (isWalletConnected) {
         setIpfsHash(uploadedIpfsHash);
         await AddCertificate();
-        notify("Certificate uploaded to blockchain", "success");
         setName("");
         setDescription("");
         setSelectedFile(null);
