@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import { FaUser } from "react-icons/fa6";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import { ScaleLoader } from "react-spinners";
+import {
+  BeatLoader,
+  ClipLoader,
+  PropagateLoader,
+  PulseLoader,
+  ScaleLoader,
+} from "react-spinners";
 import { FeaturedImageGallery } from "../components/Carousel";
 import { SlCloudUpload } from "react-icons/sl";
 import CanvasPage from "./CanvasPage";
@@ -18,6 +24,7 @@ import { ethers } from "ethers";
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [loader, setLoader] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false);
   const [templateSelected, setTemplateSelected] = useState(false);
@@ -92,39 +99,6 @@ const UploadPage = () => {
 
   // ========== IPFS Upload =========== //
 
-  const handleIPFS = async (file) => {
-    try {
-      if (!file) {
-        notify("Please select a file", "error");
-        return null;
-      }
-
-      const fileData = new FormData();
-      fileData.append("file", file);
-
-      const pinResponse = await fetch(
-        "https://api.pinata.cloud/pinning/pinFileToIPFS",
-        {
-          method: "POST",
-          headers: {
-            pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
-            pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET,
-          },
-          body: fileData,
-        }
-      );
-
-      const responseData = await pinResponse.json();
-
-      const ipfsHash = responseData.IpfsHash;
-      notify("File uploaded to IPFS", "success");
-
-      return ipfsHash;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  };
   // TOASTIFY
   const notify = (message, type) => {
     toast(message, {
@@ -140,7 +114,7 @@ const UploadPage = () => {
     });
   };
   //======================== BLOCKCHAIN UPLOAD: ==============================//
-  const [ipfsHash, setIpfsHash] = useState("");
+  const [ipfs, setIpfs] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
@@ -149,17 +123,16 @@ const UploadPage = () => {
   const privateKey = import.meta.env.VITE_PRIVATE_KEY;
   const ABI = certificate.abi;
 
-  console.log(RPC, contractAddress, ABI);
   const provider = new ethers.providers.JsonRpcProvider(RPC); //read
   const wallet = new ethers.Wallet(privateKey, provider); //write
 
-  async function AddCertificate() {
+  async function AddCertificate({ uploadedIpfsHash }) {
     try {
       const contract = new ethers.Contract(contractAddress, ABI, wallet);
 
       // Prepare the transaction data
       const transactionData = await contract.populateTransaction.addCertificate(
-        ipfsHash,
+        uploadedIpfsHash,
         name,
         description
       );
@@ -190,29 +163,87 @@ const UploadPage = () => {
     }
   }
 
-  const handleBlockchain = async (e) => {
-    e.preventDefault();
+  const handleIPFS = async (file) => {
     try {
-      const uploadedIpfsHash = await handleIPFS(selectedFile);
-
-      if (!uploadedIpfsHash) {
-        notify("IPFS hash is required", "error");
-        return;
+      if (!file) {
+        notify("Please select a file", "error");
+        return null;
       }
 
-      if (isWalletConnected) {
-        setIpfsHash(uploadedIpfsHash);
-        await AddCertificate();
-        setName("");
-        setDescription("");
-        setSelectedFile(null);
+      // Set ipfs to null at the beginning
+      setIpfs(null);
+
+      const fileData = new FormData();
+      fileData.append("file", file);
+
+      const pinResponse = await fetch(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        {
+          method: "POST",
+          headers: {
+            pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
+            pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET,
+          },
+          body: fileData,
+        }
+      );
+
+      const responseData = await pinResponse.json();
+      const data = responseData.IpfsHash;
+
+      console.log(responseData);
+
+      if (responseData.isDuplicate) {
+        notify("File with the same hash already exists on IPFS", "warning");
+        return null;
       } else {
-        notify("Please connect your wallet with MetaMask", "error");
+        const ipfsHash = responseData.IpfsHash;
+
+        // Set ipfs to the latest IPFS hash
+        setIpfs(ipfsHash);
+
+        notify("File uploaded to IPFS", "success");
+        return data;
       }
     } catch (error) {
       console.error(error);
+      notify("Error uploading to IPFS", "error");
+      return null;
     }
   };
+
+  const handleBlockchain = async (e) => {
+    e.preventDefault();
+    setLoader(true);
+
+    try {
+      // Upload to IPFS first
+      const uploadedIpfsHash = await handleIPFS(selectedFile);
+      console.log(uploadedIpfsHash);
+
+      if (uploadedIpfsHash !== null) {
+        if (isWalletConnected) {
+          // Now that we have the updated IPFS hash, proceed with blockchain upload
+          await AddCertificate({ uploadedIpfsHash });
+
+          // Clear the form fields
+          setName("");
+          setDescription("");
+          setSelectedFile(null);
+        } else {
+          notify("Please connect your wallet with MetaMask", "error");
+        }
+      } else {
+        notify("Error uploading to IPFS", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      notify("Error uploading to IPFS", "error");
+    } finally {
+      setLoader(false);
+    }
+  };
+
   return (
     <div>
       <div className="sm:flex gap-x-8  w-full gap-y-3 font-int">
@@ -427,7 +458,11 @@ const UploadPage = () => {
                       onClick={handleBlockchain}
                       className="text-sm font-bold my-6 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
                     >
-                      UPLOAD
+                      {loader ? (
+                        <ClipLoader size={18} color="white" />
+                      ) : (
+                        "UPLOAD"
+                      )}
                     </button>
                   </div>
                 </div>
