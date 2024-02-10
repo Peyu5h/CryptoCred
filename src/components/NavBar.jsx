@@ -86,7 +86,7 @@ const NavBar = ({ templateSelected }) => {
 
   return (
     <div>
-      <div className="nav h-[88vh] w-[18vw] bg-dark rounded-xl px-8 py-5 z-99">
+      <div className="nav md:h-[88vh] h-full md:w-[18vw] w-full bg-dark rounded-xl px-8 py-5 z-99 mb-6 md:mb-0 ">
         <div className="logo p-2  rounded-full text-grn text-center text-2xl font-black uppercase font-oswald ">
           CryptoCred
         </div>

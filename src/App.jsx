@@ -5,7 +5,7 @@ import VerifyPage from "./pages/VerifyPage";
 
 const App = () => {
   return (
-    <div className="p-10 font-hind font-medium">
+    <div className="md:p-10 p-4 font-hind font-medium">
       <Routes>
         <Route path="/" element={<HomePage />} exact></Route>
         <Route path="/upload" element={<UploadPage />} exact></Route>

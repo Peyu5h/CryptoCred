@@ -15,6 +15,7 @@
     "antd": "^5.13.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "ethers": "^5.4.5",
     "jotai": "^2.6.4",
     "jspdf": "^2.5.1",
     "konva": "^9.3.2",
@@ -28,6 +29,7 @@
     "react-router-dom": "^6.21.3",
     "react-spinner": "^0.2.7",
     "react-spinners": "^0.13.8",
+    "react-toastify": "^10.0.4",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1"

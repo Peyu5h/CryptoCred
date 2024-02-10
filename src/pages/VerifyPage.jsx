@@ -46,10 +46,10 @@ const VerifyPage = () => {
 
   return (
     <div>
-      <div className="flex gap-x-8">
+      <div className="flex flex-col md:flex-row gap-x-8">
         <NavBar templateSelected={false} />
-        <div className="right flex justify-between gap-x-[2vw]">
-          <div className="body h-[88vh] w-[30vw] bg-dark rounded-xl p-8">
+        <div className="right flex flex-col md:flex-row justify-between gap-x-[2vw]">
+          <div className="body w-full h-[88vh] md:w-[30vw] bg-dark rounded-xl p-8">
             <div className="title text-xl font-medium mb-12 mt-4 text-center">
               Upload your certificate to verify
             </div>
@@ -130,10 +130,12 @@ const VerifyPage = () => {
 
           {/* ================================================================= */}
 
-          <div className="body h-[88vh] w-[42vw] bg-dark rounded-xl px-8">
+          <div className="body w-full h-[88vh] md:w-[42vw] my-4 md:my-0 bg-dark rounded-xl px-8">
             {selectedFile == null && (
               <div className="notConnected flex flex-col w-full h-[88vh] items-center justify-center ">
-                <span className="text-3xl">Upload Required to Proceed</span>
+                <span className="text-3xl text-center">
+                  Upload Required to Proceed
+                </span>
                 <RingLoader color="#52D858" className="mt-6" />
               </div>
             )}

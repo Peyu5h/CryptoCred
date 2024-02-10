@@ -8,6 +8,12 @@ import { SlCloudUpload } from "react-icons/sl";
 import CanvasPage from "./CanvasPage";
 import { RxCross2 } from "react-icons/rx";
 import { BiSolidFilePdf } from "react-icons/bi";
+import certificate from "../../blockchain/Certificate.json";
+
+//toastify
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ethers } from "ethers";
 
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
@@ -86,11 +92,15 @@ const UploadPage = () => {
 
   // ========== IPFS Upload =========== //
 
-  const handleIPFS = async (e) => {
-    e.preventDefault();
+  const handleIPFS = async (file) => {
     try {
+      if (!file) {
+        notify("Please select a file", "error");
+        return null;
+      }
+
       const fileData = new FormData();
-      fileData.append("file", selectedFile);
+      fileData.append("file", file);
 
       const pinResponse = await fetch(
         "https://api.pinata.cloud/pinning/pinFileToIPFS",
@@ -107,25 +117,88 @@ const UploadPage = () => {
       const responseData = await pinResponse.json();
 
       const ipfsHash = responseData.IpfsHash;
-      const duplicate = responseData.isDuplicate;
+      notify("File uploaded to IPFS", "success");
 
-      if (duplicate) {
-        console.log("File already exists on IPFS:", ipfsHash);
+      return ipfsHash;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+  // TOASTIFY
+  const notify = (message, type) => {
+    toast(message, {
+      type: type,
+      position: "top-center",
+      autoClose: 8000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+  //======================== BLOCKCHAIN UPLOAD: ==============================//
+  const [ipfsHash, setIpfsHash] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  const RPC = import.meta.env.VITE_RPC_URL;
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+  const privateKey = import.meta.env.VITE_PRIVATE_KEY;
+  const ABI = certificate.abi;
+
+  console.log(RPC, contractAddress, ABI);
+  const provider = new ethers.providers.JsonRpcProvider(RPC); //read
+  const wallet = new ethers.Wallet(privateKey, provider); //write
+
+  async function AddCertificate() {
+    try {
+      const contract = new ethers.Contract(contractAddress, ABI, wallet);
+
+      const transaction = await contract.addCertificate(
+        ipfsHash,
+        name,
+        description
+      );
+
+      await transaction.wait();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleBlockchain = async (e) => {
+    e.preventDefault();
+    try {
+      const uploadedIpfsHash = await handleIPFS(selectedFile);
+
+      if (!uploadedIpfsHash) {
+        notify("IPFS hash is required", "error");
+        return;
+      }
+
+      if (isWalletConnected) {
+        setIpfsHash(uploadedIpfsHash);
+        await AddCertificate();
+        notify("Certificate uploaded to blockchain", "success");
+        setName("");
+        setDescription("");
+        setSelectedFile(null);
       } else {
-        const fileURL = "https://gateway.pinata.cloud/ipfs/" + ipfsHash;
-        console.log("File uploaded to IPFS:", fileURL);
+        notify("Please connect your wallet with MetaMask", "error");
       }
     } catch (error) {
       console.error(error);
     }
   };
-
   return (
     <div>
-      <div className="flex gap-x-8 font-int">
+      <div className="sm:flex gap-x-8  w-full gap-y-3 font-int">
         <NavBar templateSelected={templateSelected} />
-        <div className="right flex flex-col justify-between">
-          <div className="upperNav flex items-center justify-end h-[10vh] w-[74vw] bg-dark rounded-xl px-8">
+        <div className="right flex w-full flex-col justify-between">
+          <div className="upperNav w-full flex md:mb-0 mb-6 items-center justify-end h-[10vh] md:w-[74vw] bg-dark rounded-xl px-8">
             {isWalletConnected ? (
               <>
                 {templateSelected == true && (
@@ -196,7 +269,7 @@ const UploadPage = () => {
           {templateSelected == false ? (
             <>
               {isWalletConnected == false && (
-                <div className="body h-[74vh] w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
+                <div className="body w-full h-[74vh] md:w-[74vw] bg-dark rounded-xl px-8 flex flex-col items-center justify-center text-3xl gap-y-2">
                   <span>Connect your wallet</span>
                   <span className="text-xl">To upload the certificate</span>
                   <ScaleLoader color="#52D858" className="mt-4" />
@@ -204,8 +277,8 @@ const UploadPage = () => {
               )}
 
               {isWalletConnected == true && (
-                <div className="flex justify-between">
-                  <div className="body h-[74vh] w-[42vw] bg-dark rounded-xl px-8 flex gap-x-2  text-3xl gap-y-2">
+                <div className=" flex flex-col md:flex-row justify-between">
+                  <div className="hidden md:flex h-[74vh] md:w-[42vw] w-full bg-dark rounded-xl px-8  gap-x-2  text-3xl gap-y-2">
                     <div className="templateSelector flex flex-col w-full">
                       <div className="flex justify-between">
                         <div className="heading my-6 text-xl">
@@ -221,13 +294,13 @@ const UploadPage = () => {
                       <FeaturedImageGallery />
                     </div>
                   </div>
-                  <div className="body h-[74vh] w-[30vw] bg-dark rounded-xl px-8 flex  flex-col gap-x-2  text-3xl gap-y-2">
-                    <div className="heading text-lg my-6 ">
+                  <div className="body h-[74vh] md:w-[30vw] w-full my-4 md:my-0 bg-dark rounded-xl px-8 flex  flex-col gap-x-2  text-3xl gap-y-2">
+                    <div className="heading text-lg mt-5 mb-2">
                       Else upload your certificate
                     </div>
                     {/* =========================== FILE UPLOAD  ============================= */}
                     <div
-                      className={`flex relative justify-center items-center w-full h-64 border-2 ${
+                      className={`flex relative justify-center items-center w-full h-52 border-2 ${
                         isDragActive ? "border" : "border-dashed"
                       }  rounded-lg p-5
                 ${
@@ -294,9 +367,45 @@ const UploadPage = () => {
                       )}
                     </div>
                     {/* ======================================================== */}
+
+                    {/* ============== Name input ======================= */}
+                    <div className="flex flex-col gap-y-1 mt-3">
+                      <label
+                        htmlFor="name"
+                        className="text-sm ml-1 font-medium"
+                      >
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        placeholder="Enter receiver's name"
+                        className="w-full  rounded-md outline-none py-2 px-3 text-sm text-light bg-activeNav font-light "
+                      />
+                    </div>
+                    {/* ============== Description input ======================= */}
+                    <div className="flex flex-col gap-y-1 mt-2">
+                      <label
+                        htmlFor="description"
+                        className="text-sm ml-1 font-medium"
+                      >
+                        Description
+                      </label>
+                      <input
+                        type="text"
+                        id="description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Enter description"
+                        className="w-full  rounded-md outline-none py-2 px-3 text-sm text-light bg-activeNav font-light"
+                      />
+                    </div>
                     <button
-                      onClick={handleIPFS}
-                      className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
+                      onClick={handleBlockchain}
+                      className="text-sm font-bold my-6 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
                     >
                       UPLOAD
                     </button>
@@ -309,6 +418,7 @@ const UploadPage = () => {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
