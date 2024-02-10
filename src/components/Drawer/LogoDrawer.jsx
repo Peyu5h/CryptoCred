@@ -7,10 +7,12 @@ import {
 import { useState, useEffect } from "react";
 
 import template from "../../../public/assets/template2.png";
-import Item from "antd/es/list/Item";
+import { useAtom } from "jotai";
+import { logoItems } from "../../Atom/atom";
 
 const LogoDrawer = ({ openLogo, setOpenLogo }) => {
   const [localOpenText, setLocalOpenText] = useState(openLogo);
+  const [items, setItems] = useAtom(logoItems);
 
   useEffect(() => {
     setLocalOpenText(openLogo);
@@ -22,6 +24,11 @@ const LogoDrawer = ({ openLogo, setOpenLogo }) => {
     setTimeout(() => {
       setOpenLogo(false);
     }, 300);
+  };
+
+  const handleLogoUpload = (url) => () => {
+    setItems([...items, url]);
+    handleClose();
   };
 
   return (
@@ -53,13 +60,34 @@ const LogoDrawer = ({ openLogo, setOpenLogo }) => {
         </IconButton>
       </div>
       <div className="px-3 flex flex-col gap-y-4 mx-auto">
-        <img className="rounded-md cursor-pointer" src={template} alt="" />
-        <img className="rounded-md cursor-pointer" src={template} alt="" />
-        <img className="rounded-md cursor-pointer" src={template} alt="" />
-        <img className="rounded-md cursor-pointer" src={template} alt="" />
-        <img className="rounded-md cursor-pointer" src={template} alt="" />
-        <img className="rounded-md cursor-pointer" src={template} alt="" />
-        <img className="rounded-md cursor-pointer" src={template} alt="" />
+        <img
+          onClick={handleLogoUpload(
+            "https://w7.pngwing.com/pngs/96/271/png-transparent-online-chat-computer-icons-internet-business-unlimited-communication-online-chat-business-internet-thumbnail.png"
+          )}
+          className="rounded-md cursor-pointer"
+          src="https://w7.pngwing.com/pngs/96/271/png-transparent-online-chat-computer-icons-internet-business-unlimited-communication-online-chat-business-internet-thumbnail.png"
+          alt=""
+        />
+        <img
+          onClick={handleLogoUpload(template)}
+          className="rounded-md cursor-pointer"
+          src={template}
+          alt=""
+        />
+        <img
+          onClick={handleLogoUpload(
+            "https://plus.unsplash.com/premium_photo-1661876402729-09f3b7e87640?q=80&w=2047&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          )}
+          className="rounded-md cursor-pointer"
+          src="https://plus.unsplash.com/premium_photo-1661876402729-09f3b7e87640?q=80&w=2047&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt=""
+        />
+        <img
+          onClick={handleLogoUpload(template)}
+          className="rounded-md cursor-pointer"
+          src={template}
+          alt=""
+        />
       </div>
     </Drawer>
   );

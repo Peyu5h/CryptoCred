@@ -9,17 +9,19 @@ import { FaItalic } from "react-icons/fa";
 import { MdOutlineFormatUnderlined } from "react-icons/md";
 import { BsFonts } from "react-icons/bs";
 import { MdOutlineFormatStrikethrough } from "react-icons/md";
+import { useAtom } from "jotai";
+
 import Konva from "konva";
 
 // ========================
 import template1 from "../../public/assets/template1.png";
-import { useAtom } from "jotai";
 import {
   CanvasNav,
   browseAtom,
   drawAtom,
   logoAtom,
   textAtom,
+  logoItems,
 } from "../Atom/atom";
 
 // ===========================
@@ -55,6 +57,8 @@ const CanvasPage = ({ download, setDownload }) => {
   const [logo, setLogo] = useAtom(logoAtom);
   const [draw, setDraw] = useAtom(drawAtom);
   const [browse, setBrowse] = useAtom(browseAtom);
+  const [logoItem, setLogoItem] = useAtom(logoItems);
+  console.log(logoItem);
 
   useEffect(() => {
     if (download) {
@@ -62,6 +66,8 @@ const CanvasPage = ({ download, setDownload }) => {
       setDownload(false);
     }
   }, [download]);
+  const person =
+    "https://plus.unsplash.com/premium_photo-1661876402729-09f3b7e87640?q=80&w=2047&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
   const backgroundImage = new window.Image();
   backgroundImage.crossOrigin = "Anonymous";
@@ -92,29 +98,30 @@ const CanvasPage = ({ download, setDownload }) => {
     const initialImage = new window.Image();
     initialImage.crossOrigin = "Anonymous";
     initialImage.onload = () => {
-      setContentState([
-        ...textElements.map((textElement) => (
-          <Text
-            key={textElement.id}
-            x={textElement.x}
-            y={textElement.y}
-            text={textElement.text}
-            fontSize={textElement.fontSize}
-            fill={textElement.color}
-            fontFamily={textElement.fontFamily}
-            fontStyle={`${
-              textElement.isItalic
-                ? `italic ${textElement.fontWeight}`
-                : `${textElement.fontWeight}`
-            } `}
-            textDecoration={textElement.textDecoration}
-            draggable
-            onClick={handleShapeClick}
-            onTap={handleDoubleTap}
-            onDblTap={handleDoubleTap}
-            editable
-          />
-        )),
+      const textElementsJSX = textElements.map((textElement) => (
+        <Text
+          key={textElement.id}
+          x={textElement.x}
+          y={textElement.y}
+          text={textElement.text}
+          fontSize={textElement.fontSize}
+          fill={textElement.color}
+          fontFamily={textElement.fontFamily}
+          fontStyle={`${
+            textElement.isItalic
+              ? `italic ${textElement.fontWeight}`
+              : `${textElement.fontWeight}`
+          } `}
+          textDecoration={textElement.textDecoration}
+          draggable
+          onClick={handleShapeClick}
+          onTap={handleDoubleTap}
+          onDblTap={handleDoubleTap}
+          editable
+        />
+      ));
+
+      const backgroundImageJSX = (
         <Image
           key={1}
           image={initialImage}
@@ -125,11 +132,37 @@ const CanvasPage = ({ download, setDownload }) => {
           draggable
           onClick={handleShapeClick}
           onTap={handleDoubleTap}
-        />,
+        />
+      );
+
+      const logoItemsJSX = logoItem.map((item, index) => {
+        const logoImage = new window.Image();
+        logoImage.crossOrigin = "Anonymous";
+        logoImage.src = item;
+        return (
+          <Image
+            key={index}
+            image={logoImage}
+            x={300}
+            y={100}
+            width={150}
+            height={250}
+            draggable
+            onClick={handleShapeClick}
+            onTap={handleDoubleTap}
+          />
+        );
+      });
+
+      setContentState([
+        ...textElementsJSX,
+        backgroundImageJSX,
+        ...logoItemsJSX,
       ]);
     };
 
     initialImage.src = medal;
+
     imageRef.current = initialImage;
 
     if (selectedShape && transformerRef.current) {
@@ -151,9 +184,8 @@ const CanvasPage = ({ download, setDownload }) => {
     textDecoration,
     fontFamily,
     updateNewText,
+    logoItem,
   ]);
-
-  console.log(text, logo, draw, browse);
 
   const handleUndo = () => {
     if (contentHistory.length > 1) {
@@ -217,6 +249,9 @@ const CanvasPage = ({ download, setDownload }) => {
 
   const handleDoubleTap = (e) => {
     setIsDoubleClick(true);
+    setLogo(false);
+    setDraw(false);
+    setBrowse(false);
     setText(true);
 
     const shape = e.target;
@@ -263,6 +298,17 @@ const CanvasPage = ({ download, setDownload }) => {
 
   // =======================  DRAWER ==========================
   const [open, setOpen] = useState(false);
+  const [logoDrawer, setLogoDrawer] = useState(false);
+
+  useEffect(() => {
+    if (logo === true) {
+      setLogoDrawer(true);
+      setOpen(false);
+    }
+    if (logo === false) {
+      setLogoDrawer(false);
+    }
+  }, [logo]);
 
   // ADD text
   const [textElements, setTextElements] = useState([
@@ -442,12 +488,34 @@ const CanvasPage = ({ download, setDownload }) => {
         </div>
       </div>
       <div className="btn text-xs flex flex-col gap-y-8">
+        {logo && (
+          <>
+            <div className="btn text-xs flex flex-col gap-y-8">
+              <Drawer
+                title="Edit Text"
+                placement="right"
+                closable={false}
+                onClose={() => setLogoDrawer(false)}
+                visible={open}
+                width={275}
+                style={{ backgroundColor: "#F9FCFB" }}
+              >
+                <button
+                  onClick={handleAddText}
+                  className="mb-4 bg-dark text-white text-center w-full py-3 rounded-lg"
+                >
+                  Add Text
+                </button>
+              </Drawer>
+            </div>
+          </>
+        )}
         {/* <button onClick={handleExportPDF}>Export as PDF</button> */}
         {/* <button onClick={handleUndo}>Undo</button>
         <button onClick={handleRedo}>Redo</button> */}
         <div className="btn text-xs flex flex-col gap-y-8">
           {selectedShape && selectedShape.getClassName() === "Text" && (
-            <>
+            <div>
               <Drawer
                 title="Edit Text"
                 placement="right"
@@ -559,7 +627,7 @@ const CanvasPage = ({ download, setDownload }) => {
                   </div>
                 </div>
               </Drawer>
-            </>
+            </div>
           )}
         </div>
       </div>

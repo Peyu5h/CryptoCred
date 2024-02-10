@@ -176,9 +176,7 @@ const NavBar = ({ templateSelected }) => {
                   ""
                 )}
               </div>
-              {openLogo && (
-                <LogoDrawer openLogo={openLogo} setOpenLogo={setOpenLogo} />
-              )}
+              {logo && <LogoDrawer openLogo={logo} setOpenLogo={setLogo} />}
 
               <div
                 onClick={handleDraw}

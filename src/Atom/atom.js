@@ -5,5 +5,12 @@ export const textAtom = atom(false);
 export const logoAtom = atom(false);
 export const drawAtom = atom(false);
 export const browseAtom = atom(false);
+export const logoItems = atom([]);
 
-export const CanvasNav = atom([textAtom, logoAtom, drawAtom, browseAtom]);
+export const CanvasNav = atom([
+  textAtom,
+  logoAtom,
+  drawAtom,
+  browseAtom,
+  logoItems,
+]);
