@@ -19,6 +19,7 @@ export default withMT({
         int: ["Inter", "sans-serif"],
         oswald: ["Oswald", "sans-serif"],
         pop: ["Poppins", "sans-serif"],
+        bebas: ["Bebas Neue", "sans-serif"],
       },
       backgroundColor: {
         dark: "#191917",

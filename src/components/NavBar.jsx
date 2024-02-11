@@ -3,7 +3,7 @@ import { FiUpload } from "react-icons/fi";
 import { GrDocumentVerified } from "react-icons/gr";
 import { useState, useEffect, useRef } from "react";
 import { FaAngleRight } from "react-icons/fa6";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { RxText } from "react-icons/rx";
 import { IoIosDocument } from "react-icons/io";
 import { MdDraw } from "react-icons/md";
@@ -86,9 +86,11 @@ const NavBar = ({ templateSelected }) => {
   return (
     <div>
       <div className="nav md:h-[88vh] h-full md:w-[18vw] w-full bg-dark rounded-xl px-8 py-5 z-99 mb-6 md:mb-0 ">
-        <div className="logo p-2  rounded-full text-grn text-center text-2xl font-black uppercase font-oswald ">
-          CryptoCred
-        </div>
+        <Link to="/">
+          <div className="logo p-2 cursor-pointer  rounded-full text-grn text-center text-2xl font-black uppercase font-oswald ">
+            CryptoCred
+          </div>
+        </Link>
 
         <div className="splitter h-[0.5px] bg-overlay w-full mb-8 mt-6"></div>
 
