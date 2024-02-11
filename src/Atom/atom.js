@@ -6,6 +6,7 @@ export const logoAtom = atom(false);
 export const drawAtom = atom(false);
 export const browseAtom = atom(false);
 export const logoItems = atom([]);
+export const hashAtom = atom("");
 
 export const CanvasNav = atom([
   textAtom,
@@ -13,4 +14,5 @@ export const CanvasNav = atom([
   drawAtom,
   browseAtom,
   logoItems,
+  hashAtom,
 ]);

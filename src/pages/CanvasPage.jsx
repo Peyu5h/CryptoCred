@@ -22,6 +22,7 @@ import {
   logoAtom,
   textAtom,
   logoItems,
+  hashAtom,
 } from "../Atom/atom";
 
 // ===========================
@@ -58,7 +59,9 @@ const CanvasPage = ({ download, setDownload }) => {
   const [draw, setDraw] = useAtom(drawAtom);
   const [browse, setBrowse] = useAtom(browseAtom);
   const [logoItem, setLogoItem] = useAtom(logoItems);
-  console.log(logoItem);
+  const [ipfsHesh, setIpfsHesh] = useState("");
+  const [detailsPopup, setDetailsPopup] = useState(false);
+  const [hash, setHash] = useAtom(hashAtom);
 
   useEffect(() => {
     if (download) {
@@ -271,21 +274,81 @@ const CanvasPage = ({ download, setDownload }) => {
       setIsDoubleClick(false);
     }, 500);
   };
+  // ============================================================== //
+  const [downloadedDataURL, setDownloadedDataURL] = useState(null);
+  const stageRef = useRef(null);
 
-  const handleExportPNG = () => {
-    const stage = contentLayerRef.current.getStage();
+  const handleIPFS = async (imageDataURL) => {
+    try {
+      if (!imageDataURL) {
+        console.error("Image data is missing");
+        return null;
+      }
 
-    const dataURL = stage.toDataURL({ pixelRatio: 2 });
+      const fileData = new FormData();
+      const blob = await (await fetch(imageDataURL)).blob();
+      fileData.append("file", blob);
 
-    // Create an anchor element to trigger the download
-    const downloadLink = document.createElement("a");
-    downloadLink.href = dataURL;
-    downloadLink.download = "certificate.png";
+      const pinResponse = await fetch(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        {
+          method: "POST",
+          headers: {
+            pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
+            pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET,
+          },
+          body: fileData,
+        }
+      );
 
-    // Trigger the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+      const responseData = await pinResponse.json();
+
+      if (responseData.isDuplicate) {
+        console.warn("File with the same hash already exists on IPFS");
+        return null;
+      } else {
+        const ipfsHash = responseData.IpfsHash;
+        return ipfsHash;
+      }
+    } catch (error) {
+      console.error("Error uploading to IPFS:", error);
+      return null;
+    }
+  };
+
+  const handleExportPNG = async () => {
+    try {
+      // Ensure that stageRef.current is not null before calling getStage
+      if (stageRef.current) {
+        const stage = stageRef.current.getStage();
+        const dataURL = stage.toDataURL({ pixelRatio: 2 });
+        setDownloadedDataURL(dataURL);
+
+        const downloadLink = document.createElement("a");
+        downloadLink.href = dataURL;
+        downloadLink.download = "certificate.png";
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        const ipfsHash = await handleIPFS(dataURL);
+        setHash(ipfsHash);
+
+        setDetailsPopup(true);
+
+        if (ipfsHash) {
+          setHash(ipfsHash);
+
+          console.log(ipfsHash);
+          return ipfsHash;
+        } else {
+          console.error("Failed to upload image to IPFS");
+        }
+      }
+    } catch (error) {
+      console.error("Error exporting PNG and uploading to IPFS:", error);
+    }
   };
 
   const handleTextChange = (e) => {
@@ -416,7 +479,7 @@ const CanvasPage = ({ download, setDownload }) => {
       <Stage
         width={678}
         height={396}
-        ref={contentLayerRef}
+        ref={(node) => (stageRef.current = node)}
         onMouseDown={handleStageMouseDown}
       >
         <Layer>

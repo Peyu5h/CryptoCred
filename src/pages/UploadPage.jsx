@@ -21,6 +21,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ethers } from "ethers";
 
+import { useAtom } from "jotai";
+import { hashAtom } from "../Atom/atom";
+
 const UploadPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -30,6 +33,9 @@ const UploadPage = () => {
   const [templateSelected, setTemplateSelected] = useState(false);
 
   const [download, setDownload] = useState(false);
+  const [detailPopup, setDetailPopup] = useState(false);
+
+  const [hash, setHash] = useAtom(hashAtom);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -242,8 +248,97 @@ const UploadPage = () => {
     }
   };
 
+  const handleBlockchainCanvas = async (e) => {
+    e.preventDefault();
+    setLoader(true);
+    console.log(hash);
+    console.log(name);
+    console.log(description);
+
+    try {
+      const uploadedIpfsHash = hash;
+      console.log(uploadedIpfsHash);
+
+      if (uploadedIpfsHash !== null) {
+        if (isWalletConnected) {
+          await AddCertificate({ uploadedIpfsHash });
+        } else {
+          notify("Please connect your wallet with MetaMask", "error");
+        }
+      } else {
+        notify("Error uploading to IPFS", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      notify("Error uploading to IPFS", "error");
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const handleUploadCanvas = () => {
+    setDownload(true);
+    setDetailPopup(true);
+  };
+
   return (
     <div>
+      {detailPopup && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white/20 z-50 flex items-center justify-center">
+          <div className="popupContainer w-[36%] h-[50%] rounded-xl shadow-xl bg-dark flex flex-col">
+            <div className="cross flex justify-between text-2xl text-light p-4">
+              <div className="tempdiv ml-2">Enter details</div>
+              <div className="">
+                <RxCross2
+                  onClick={() => setDetailPopup(false)}
+                  className="cursor-pointer"
+                />
+              </div>
+            </div>
+            {/* ========================================= */}
+            <div className="input px-16">
+              {/* ============== Name input ======================= */}
+              <div className="flex flex-col gap-y-1 mt-3">
+                <label htmlFor="name" className="text-sm ml-1 font-medium">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder="Enter receiver's name"
+                  className="w-full  rounded-md outline-none py-2 px-3 text-sm text-light bg-activeNav font-light "
+                />
+              </div>
+              {/* ============== Description input ======================= */}
+              <div className="flex flex-col gap-y-1 mt-6">
+                <label
+                  htmlFor="description"
+                  className="text-sm ml-1 font-medium"
+                >
+                  Description
+                </label>
+                <input
+                  type="text"
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter description"
+                  className="w-full  rounded-md outline-none py-2 px-3 text-sm text-light bg-activeNav font-light"
+                />
+              </div>
+              <button
+                onClick={handleBlockchainCanvas}
+                className="text-sm font-bold my-10 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
+              >
+                {loader ? <ClipLoader size={18} color="white" /> : "UPLOAD"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="sm:flex gap-x-8  w-full gap-y-3 font-int">
         <NavBar templateSelected={templateSelected} />
         <div className="right flex w-full flex-col justify-between">
@@ -252,7 +347,7 @@ const UploadPage = () => {
               <>
                 {templateSelected == true && (
                   <div
-                    onClick={() => setDownload(true)}
+                    onClick={handleUploadCanvas}
                     className="saveBtn mr-6 cursor-pointer text-grn hover:bg-grn hover:dark duration-300 hover:text-dark bg-transparent border border-grn rounded-full  px-4 py-3"
                   >
                     Save & Upload
