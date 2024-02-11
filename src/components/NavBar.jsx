@@ -29,7 +29,6 @@ const NavBar = ({ templateSelected }) => {
 
   const [active, setActive] = useState("");
   const location = useLocation();
-  console.log(templateSelected);
 
   useEffect(() => {
     const path = location.pathname;

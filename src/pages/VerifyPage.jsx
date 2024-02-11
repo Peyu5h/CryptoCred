@@ -1,14 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import { SlCloudUpload } from "react-icons/sl";
-import { MoonLoader, RingLoader, ScaleLoader } from "react-spinners";
 import { RxCross2 } from "react-icons/rx";
 import { BiSolidFilePdf } from "react-icons/bi";
+import { ethers } from "ethers";
+import certificate from "../../blockchain/Certificate.json";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ClipLoader, RingLoader } from "react-spinners";
 
 const VerifyPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [isVerified, setIsVerified] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fakeCert, setFakeCert] = useState(false);
+
+  const RPC = import.meta.env.VITE_RPC_URL;
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+  const ABI = certificate.abi;
+
+  const [ipfsHash, setIpfsHash] = useState("");
+  const [certificateData, setCertificateData] = useState(null);
+  const [error, setError] = useState("");
+
+  const fetchCertificateData = async ({ ipfsHesh }) => {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(RPC);
+      const contract = new ethers.Contract(contractAddress, ABI, provider);
+
+      const result = await contract.getCertificate(ipfsHesh);
+
+      if (result[0].length > 0) {
+        setIsLoading(false);
+        setIsVerified(true);
+        setFakeCert(false);
+
+        const data = {
+          name: result[0],
+          description: result[1],
+          sender: result[2],
+          timestamp: result[3].toNumber(),
+        };
+
+        setCertificateData(data);
+
+        return data;
+      } else {
+        setIsLoading(false);
+        setFakeCert(true);
+        setCertificateData(null);
+        console.log("Certificate not found");
+      }
+    } catch (error) {
+      setIsLoading(false);
+      setFakeCert(true);
+      setCertificateData(null);
+      console.log("Error fetching certificate data", error);
+    }
+  };
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -41,6 +91,76 @@ const VerifyPage = () => {
       setSelectedFile(file);
     } else {
       alert("Please select a valid PNG or PDF file.");
+    }
+  };
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    const ipfsHesh = await handleIPFS(selectedFile);
+    const data = await fetchCertificateData({ ipfsHesh });
+    setIpfsHash(ipfsHesh);
+    setCertificateData(data);
+  };
+
+  const handleReset = () => {
+    setSelectedFile(null);
+    setCertificateData(null);
+    setIsVerified(false);
+  };
+
+  // TOASTIFY
+  const notify = (message, type) => {
+    toast(message, {
+      type: type,
+      position: "top-center",
+      autoClose: 8000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+  // =================================================================
+
+  const handleIPFS = async (file) => {
+    try {
+      if (!file) {
+        notify("Please select a file", "error");
+        return null;
+      }
+
+      const fileData = new FormData();
+      fileData.append("file", file);
+
+      const pinResponse = await fetch(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        {
+          method: "POST",
+          headers: {
+            pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
+            pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET,
+          },
+          body: fileData,
+        }
+      );
+
+      const responseData = await pinResponse.json();
+      const data = responseData.IpfsHash;
+
+      if (responseData.isDuplicate) {
+        notify("File already exists on IPFS", "success");
+        return data;
+      } else {
+        notify("File does not exist on ipfs", "warning");
+        return data;
+      }
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+      notify("Error uploading to IPFS", "error");
+      return null;
     }
   };
 
@@ -98,7 +218,7 @@ const VerifyPage = () => {
               {selectedFile && (
                 <div className="mt-3">
                   <div
-                    onClick={() => setSelectedFile(null)}
+                    onClick={handleReset}
                     className="absolute top-0 right-0 mt-3 mr-4 cursor-pointer"
                   >
                     <RxCross2 className="text-2xl" />
@@ -121,10 +241,10 @@ const VerifyPage = () => {
               )}
             </div>
             <button
-              onClick={() => setIsVerified(false)}
+              onClick={fetchData}
               className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
             >
-              Verify
+              {isLoading ? <ClipLoader size={18} color="white" /> : "Verify"}
             </button>
           </div>
 
@@ -136,56 +256,37 @@ const VerifyPage = () => {
                 <span className="text-3xl text-center">
                   Upload Required to Proceed
                 </span>
-                <RingLoader color="#52D858" className="mt-6" />
+
+                {isLoading ? (
+                  <ClipLoader color="#52D858" className="mt-6" />
+                ) : (
+                  <RingLoader color="#52D858" className="mt-6" />
+                )}
               </div>
             )}
-
-            {/* ===== loader ====== */}
-            {/* <div className="loading flex items-center justify-center h-full">
-              <MoonLoader color="#52D858" className=" " />
-            </div> */}
-            {/* ================== */}
-            {selectedFile && (
+            {selectedFile && certificateData === null && (
+              <>
+                {isLoading ? (
+                  <div className="flex flex-col h-full justify-center items-center text-2xl">
+                    Fetching Certificate Data ...
+                    <ClipLoader color="#52D858" className="mt-6" />
+                  </div>
+                ) : (
+                  <div className="flex flex-col h-full justify-center items-center text-2xl gap-y-2">
+                    <h1> Proceed for Validation</h1>
+                    <h1>
+                      Click on <span className="text-grn">Verify</span> button
+                    </h1>
+                  </div>
+                )}
+              </>
+            )}
+            {selectedFile && certificateData !== null && (
               <div className="mainScreen">
                 <div className="heading text-3xl font-semibold py-8 ">
                   Verification Status
                 </div>
-
-                {/* ======================== Valid certificate =========================== */}
-                {isVerified ? (
-                  <div className="status flex  flex-col">
-                    <div className="text text-2xl font-semibold mt-8 mx-auto">
-                      Certificate validation{" "}
-                      <span className="text-grn">successful</span>
-                    </div>
-                    <img
-                      className="mt-4 w-[75%] mx-auto"
-                      src="https://www.slideegg.com/image/catalog/477793-certificate%20of%20training%20template%20ppt.png"
-                      alt=""
-                    />
-                    <div className="userDetails text-xl my-12 mx-4 flex flex-col gap-y-4">
-                      <div className="name">
-                        Name:{" "}
-                        <span className="text-lg font-normal ">
-                          FirstName LastName
-                        </span>
-                      </div>
-                      <div className="name">
-                        Details:&nbsp;
-                        <span className="text-lg font-normal ">
-                          Atharva College of Engineering
-                        </span>
-                      </div>
-                      <div className="name">
-                        more:&nbsp;
-                        <span className="text-lg font-normal ">
-                          ....................................
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* ======================== Invalid certificate =========================== */
+                {fakeCert || !isVerified ? (
                   <div className="unVerified">
                     <div className="text text-2xl font-semibold mt-8 text-center">
                       Certificate validation{" "}
@@ -202,12 +303,51 @@ const VerifyPage = () => {
                       </div>
                     </div>
                   </div>
+                ) : (
+                  <div className="status flex  flex-col">
+                    <div className="text text-2xl font-semibold mt-8 mx-auto">
+                      Certificate validation{" "}
+                      <span className="text-grn">successful</span>
+                    </div>
+                    <img
+                      className="mt-4 w-[75%] mx-auto"
+                      src="https://www.slideegg.com/image/catalog/477793-certificate%20of%20training%20template%20ppt.png"
+                      alt=""
+                    />
+                    <div className="userDetails text-xl my-12 mx-4 flex flex-col gap-y-4">
+                      <div className="name">
+                        Name:&nbsp;
+                        <span className="text-lg font-normal ">
+                          {certificateData.name}
+                        </span>
+                      </div>
+                      <div className="name">
+                        Details:&nbsp;
+                        <span className="text-lg font-normal ">
+                          {certificateData.description}
+                        </span>
+                      </div>
+                      <div className="name">
+                        Sender:&nbsp;
+                        <span className="text-lg font-normal ">
+                          {certificateData.sender}
+                        </span>
+                      </div>
+                      <div className="name">
+                        Time:&nbsp;
+                        <span className="text-lg font-normal ">
+                          {certificateData.timestamp}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

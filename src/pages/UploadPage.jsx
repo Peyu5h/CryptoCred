@@ -70,20 +70,29 @@ const UploadPage = () => {
 
   //========== MetaMask Connect ========== //
   const [address, setAddress] = useState("");
+  const [signer, setSigner] = useState(null);
 
   const metamaskConnect = async () => {
     try {
       if (window.ethereum) {
+        // Request account access from MetaMask
         const accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
+
         setAddress(accounts[0]);
+
+        // Use a Signer for transaction signing
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const connectedSigner = provider.getSigner();
+        setSigner(connectedSigner);
+
         setIsWalletConnected(true);
       } else {
         alert("Please install MetaMask!");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setIsWalletConnected(false);
     }
   };
@@ -120,45 +129,47 @@ const UploadPage = () => {
 
   const RPC = import.meta.env.VITE_RPC_URL;
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
-  const privateKey = import.meta.env.VITE_PRIVATE_KEY;
+  // const privateKey = import.meta.env.VITE_PRIVATE_KEY;
   const ABI = certificate.abi;
 
   const provider = new ethers.providers.JsonRpcProvider(RPC); //read
-  const wallet = new ethers.Wallet(privateKey, provider); //write
+  // const wallet = new ethers.Wallet(privateKey, provider); //write
 
   async function AddCertificate({ uploadedIpfsHash }) {
     try {
-      const contract = new ethers.Contract(contractAddress, ABI, wallet);
+      if (!signer) {
+        notify("Please connect your wallet with MetaMask", "error");
+        return;
+      }
 
-      // Prepare the transaction data
+      const contract = new ethers.Contract(contractAddress, ABI, signer);
+
       const transactionData = await contract.populateTransaction.addCertificate(
         uploadedIpfsHash,
         name,
         description
       );
 
-      // Manually set the gas limit (you can adjust this value based on your needs)
-      const gasLimit = 200000; // Example gas limit value
+      const gasLimit = 200000; // Set your desired gas limit here
 
-      // Send the transaction with the manually set gas limit
-      const transaction = await wallet.sendTransaction({
+      const transactionParameters = {
         to: contractAddress,
-        data: transactionData.data,
         gasLimit: ethers.utils.hexlify(gasLimit),
-      });
+        data: transactionData.data,
+      };
 
-      const receipt = await transaction.wait();
+      // Request the user to sign the transaction using MetaMask
+      const signedTransaction = await signer.sendTransaction(
+        transactionParameters
+      );
 
-      // Notify the user that the transaction was successful
       notify("Certificate uploaded to blockchain", "success");
 
-      // Clear the form fields
       setName("");
       setDescription("");
       setSelectedFile(null);
     } catch (error) {
       console.error(error);
-      // Notify the user if there was an error
       notify("Error uploading certificate to blockchain", "error");
     }
   }
@@ -170,7 +181,6 @@ const UploadPage = () => {
         return null;
       }
 
-      // Set ipfs to null at the beginning
       setIpfs(null);
 
       const fileData = new FormData();
@@ -199,7 +209,6 @@ const UploadPage = () => {
       } else {
         const ipfsHash = responseData.IpfsHash;
 
-        // Set ipfs to the latest IPFS hash
         setIpfs(ipfsHash);
 
         notify("File uploaded to IPFS", "success");
@@ -217,19 +226,11 @@ const UploadPage = () => {
     setLoader(true);
 
     try {
-      // Upload to IPFS first
       const uploadedIpfsHash = await handleIPFS(selectedFile);
-      console.log(uploadedIpfsHash);
 
       if (uploadedIpfsHash !== null) {
         if (isWalletConnected) {
-          // Now that we have the updated IPFS hash, proceed with blockchain upload
           await AddCertificate({ uploadedIpfsHash });
-
-          // Clear the form fields
-          setName("");
-          setDescription("");
-          setSelectedFile(null);
         } else {
           notify("Please connect your wallet with MetaMask", "error");
         }
