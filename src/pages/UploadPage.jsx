@@ -75,14 +75,12 @@ const UploadPage = () => {
   const metamaskConnect = async () => {
     try {
       if (window.ethereum) {
-        // Request account access from MetaMask
         const accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
 
         setAddress(accounts[0]);
 
-        // Use a Signer for transaction signing
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const connectedSigner = provider.getSigner();
         setSigner(connectedSigner);
@@ -150,7 +148,7 @@ const UploadPage = () => {
         description
       );
 
-      const gasLimit = 200000; // Set your desired gas limit here
+      const gasLimit = 200000;
 
       const transactionParameters = {
         to: contractAddress,
@@ -158,7 +156,6 @@ const UploadPage = () => {
         data: transactionData.data,
       };
 
-      // Request the user to sign the transaction using MetaMask
       const signedTransaction = await signer.sendTransaction(
         transactionParameters
       );

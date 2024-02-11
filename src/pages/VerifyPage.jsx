@@ -310,8 +310,8 @@ const VerifyPage = () => {
                       <span className="text-grn">successful</span>
                     </div>
                     <img
-                      className="mt-4 w-[75%] mx-auto"
-                      src="https://www.slideegg.com/image/catalog/477793-certificate%20of%20training%20template%20ppt.png"
+                      className="mt-4 h-52 rounded-md mx-auto"
+                      src={`https://lavender-giant-bonobo-330.mypinata.cloud/ipfs/${ipfsHash}`}
                       alt=""
                     />
                     <div className="userDetails text-xl my-12 mx-4 flex flex-col gap-y-4">
