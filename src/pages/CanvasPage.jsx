@@ -63,14 +63,137 @@ const CanvasPage = ({ download, setDownload }) => {
   const [detailsPopup, setDetailsPopup] = useState(false);
   const [hash, setHash] = useAtom(hashAtom);
 
+  //Drawing on canvas
+  const isDrawing = useRef(false);
+  const lines = useRef([]);
+  const [drawLayer, setDrawLayer] = useState(new Konva.Layer());
+  const [drawnContent, setDrawnContent] = useState([]);
+
+  const handleDrawing = () => {
+    // Example: Adding a red rectangle at random position
+    const newRect = {
+      id: Date.now().toString(),
+      x: Math.random() * 500,
+      y: Math.random() * 500,
+      width: 50,
+      height: 50,
+      fill: "red",
+    };
+
+    // Update state with the new drawn element
+    setDrawnContent((prevContent) => [...prevContent, newRect]);
+  };
+  const handleTransform = () => {
+    const index = drawnContent.findIndex(
+      (item) => item.id === selectedShape.id
+    );
+    const updatedContent = [...drawnContent];
+    updatedContent[index] = {
+      ...selectedShape.attrs,
+      id: selectedShape.id,
+    };
+    setDrawnContent(updatedContent);
+  };
+  const handleShapeSelect = (e, shape) => {
+    e.cancelBubble = true; // Prevent stage click event
+    setSelectedShape(shape);
+    transformerRef.current.nodes([shape]);
+  };
+
+  // Function to handle stage click (deselect shape)
+  const handleStageClick = () => {
+    setSelectedShape(null);
+    transformerRef.current.nodes([]);
+  };
+
+  useEffect(() => {
+    if (drawnContent.length > 0) {
+      // Repopulate canvas with drawn content
+      const layer = stageRef.current.findOne(".drawn-layer");
+      layer.destroyChildren();
+
+      drawnContent.forEach((item) => {
+        const shape = (
+          <Rect
+            key={item.id}
+            x={item.x}
+            y={item.y}
+            width={item.width}
+            height={item.height}
+            fill={item.fill}
+            draggable
+            onClick={(e) => handleShapeSelect(e, e.target)}
+            onTransformEnd={handleTransform}
+          />
+        );
+        layer.add(shape);
+      });
+
+      stageRef.current.batchDraw();
+    }
+  }, [drawnContent]);
+
+  // =====
+  useEffect(() => {
+    if (draw) {
+      stageRef.current.add(drawLayer);
+    } else {
+      drawLayer.destroy();
+      setDrawLayer(new Konva.Layer());
+    }
+  }, [draw]);
+
+  const handleMouseDown = (e) => {
+    if (!draw) return;
+
+    isDrawing.current = true;
+    const pos = e.target.getStage().getPointerPosition();
+    lines.current.push({
+      tool: "pencil",
+      points: [pos.x, pos.y],
+      color,
+    });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!draw || !isDrawing.current) return;
+
+    const stage = e.target.getStage();
+    const point = stage.getPointerPosition();
+    const lastLine = lines.current[lines.current.length - 1];
+    lastLine.points = lastLine.points.concat([point.x, point.y]);
+
+    drawLayer.destroyChildren();
+
+    lines.current.forEach((line) => {
+      const lineColor = line.color || color;
+      const newLine = new Konva.Line({
+        points: line.points,
+        stroke: lineColor,
+        strokeWidth: 5,
+        lineCap: "round",
+        lineJoin: "round",
+      });
+
+      drawLayer.add(newLine);
+    });
+
+    drawLayer.batchDraw();
+  };
+
+  const handleMouseUp = () => {
+    if (!draw) return;
+
+    isDrawing.current = false;
+  };
+  // ======================================== //
+
   useEffect(() => {
     if (download) {
       handleExportPNG();
       setDownload(false);
     }
   }, [download]);
-  const person =
-    "https://plus.unsplash.com/premium_photo-1661876402729-09f3b7e87640?q=80&w=2047&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
   const backgroundImage = new window.Image();
   backgroundImage.crossOrigin = "Anonymous";
@@ -124,20 +247,6 @@ const CanvasPage = ({ download, setDownload }) => {
         />
       ));
 
-      const backgroundImageJSX = (
-        <Image
-          key={1}
-          image={initialImage}
-          x={300}
-          y={100}
-          width={150}
-          height={250}
-          draggable
-          onClick={handleShapeClick}
-          onTap={handleDoubleTap}
-        />
-      );
-
       const logoItemsJSX = logoItem.map((item, index) => {
         const logoImage = new window.Image();
         logoImage.crossOrigin = "Anonymous";
@@ -148,8 +257,8 @@ const CanvasPage = ({ download, setDownload }) => {
             image={logoImage}
             x={300}
             y={100}
-            width={150}
-            height={250}
+            width={200}
+            height={200}
             draggable
             onClick={handleShapeClick}
             onTap={handleDoubleTap}
@@ -157,11 +266,7 @@ const CanvasPage = ({ download, setDownload }) => {
         );
       });
 
-      setContentState([
-        ...textElementsJSX,
-        backgroundImageJSX,
-        ...logoItemsJSX,
-      ]);
+      setContentState([...textElementsJSX, ...logoItemsJSX]);
     };
 
     initialImage.src = medal;
@@ -480,7 +585,11 @@ const CanvasPage = ({ download, setDownload }) => {
         width={678}
         height={396}
         ref={(node) => (stageRef.current = node)}
-        onMouseDown={handleStageMouseDown}
+        // onMouseDown={handleStageMouseDown}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
         <Layer>
           <Rect
