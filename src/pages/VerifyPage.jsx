@@ -150,7 +150,7 @@ const VerifyPage = () => {
       const data = responseData.IpfsHash;
 
       if (responseData.isDuplicate) {
-        notify("File already exists on IPFS", "success");
+        notify("File exists on IPFS", "success");
         return data;
       } else {
         notify("File does not exist on ipfs", "warning");
@@ -242,7 +242,7 @@ const VerifyPage = () => {
             </div>
             <button
               onClick={fetchData}
-              className="text-sm font-bold mt-8 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
+              className="text-sm font-bold mt-8 w-full bg-grn duration-300 transition-all text-white py-4 rounded-lg hover:bg-green-600"
             >
               {isLoading ? <ClipLoader size={18} color="white" /> : "Verify"}
             </button>

@@ -107,6 +107,7 @@ const CanvasPage = ({ download, setDownload }) => {
   };
 
   useEffect(() => {
+    console.log("drawnContent updated:", drawnContent);
     if (drawnContent.length > 0) {
       // Repopulate canvas with drawn content
       const layer = stageRef.current.findOne(".drawn-layer");
@@ -585,7 +586,6 @@ const CanvasPage = ({ download, setDownload }) => {
         width={678}
         height={396}
         ref={(node) => (stageRef.current = node)}
-        // onMouseDown={handleStageMouseDown}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

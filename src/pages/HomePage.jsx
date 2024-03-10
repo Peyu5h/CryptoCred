@@ -1,17 +1,14 @@
 import NavBar from "../components/NavBar";
-import hero from "../assets/hero3-unscreen.gif";
-import hero2 from "../assets/output-onlinegiftools.gif";
-import hero3 from "../assets/hero.gif";
-import hero4 from "../assets/progiftools-hero-change-background (1).gif";
+
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
   return (
     <div>
-      <div className="flex gap-x-8 scrollbar">
+      <div className="flex flex-col md:flex-row gap-x-8">
         <NavBar templateSelected={false} />
-        <div className="body h-[88vh] w-[74vw] bg-dark rounded-xl px-8  scrollbar overflow-hidden  flex items-center">
-          <div className="flex justify-between m-4 ">
+        <div className="body h-[88vh] md:w-[74vw] w-full bg-dark rounded-xl px-8  scrollbar overflow-hidden  flex items-center">
+          <div className="flex flex-col md:flex-row justify-between m-4 ">
             <div className="mt-12 ">
               <h1 className="text-6xl  font-bebas text-white">
                 Welcome to the <span className="text-grn">CryptoCred</span>
@@ -42,7 +39,11 @@ const HomePage = () => {
               </div>
             </div>
 
-            <img className="w-[28vw] m-1 rounded-lg" src={hero2} alt="" />
+            <img
+              className="w-[28vw]  m-1 rounded-lg "
+              src="https://res.cloudinary.com/dkysrpdi6/image/upload/v1710073925/hero_icm9rg.gif"
+              alt=""
+            />
           </div>
           {/* <img src={hero4} alt="" /> */}
 

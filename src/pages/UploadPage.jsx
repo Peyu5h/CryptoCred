@@ -549,7 +549,7 @@ const UploadPage = () => {
                     </div>
                     <button
                       onClick={handleBlockchain}
-                      className="text-sm font-bold my-6 w-full bg-grn text-white py-4 rounded-lg hover:bg-green-600"
+                      className="text-sm font-bold my-6 w-full bg-grn text-white py-4 rounded-lg transition-all duration-300 hover:bg-green-600"
                     >
                       {loader ? (
                         <ClipLoader size={18} color="white" />
