@@ -39,6 +39,9 @@ export default withMT({
         overlayLight: "#4E4E4E",
       },
       borderColor: { grn: "#52D858", light: "#B5B7B5" },
+      accentColor: {
+        grn: "#52D858",
+      },
     },
   },
   plugins: [],

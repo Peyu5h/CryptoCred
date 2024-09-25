@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import NavBar from "../components/NavBar";
 import { SlCloudUpload } from "react-icons/sl";
 import { RxCross2 } from "react-icons/rx";
@@ -8,6 +8,7 @@ import certificate from "../../blockchain/Certificate.json";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClipLoader, RingLoader } from "react-spinners";
+import { format } from "date-fns";
 
 const VerifyPage = () => {
   const [isDragActive, setIsDragActive] = useState(false);
@@ -22,7 +23,6 @@ const VerifyPage = () => {
 
   const [ipfsHash, setIpfsHash] = useState("");
   const [certificateData, setCertificateData] = useState(null);
-  const [error, setError] = useState("");
 
   const fetchCertificateData = async ({ ipfsHesh }) => {
     try {
@@ -328,15 +328,18 @@ const VerifyPage = () => {
                         </span>
                       </div>
                       <div className="name">
-                        Sender:&nbsp;
+                        Validator:&nbsp;
                         <span className="text-lg font-normal ">
                           {certificateData.sender}
                         </span>
                       </div>
                       <div className="name">
-                        Time:&nbsp;
+                        Date:&nbsp;
                         <span className="text-lg font-normal ">
-                          {certificateData.timestamp}
+                          {format(
+                            certificateData.timestamp * 1000,
+                            "dd/MM/yyyy"
+                          )}
                         </span>
                       </div>
                     </div>

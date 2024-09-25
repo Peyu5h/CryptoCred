@@ -1,14 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import NavBar from "../components/NavBar";
 import { FaUser } from "react-icons/fa6";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import {
-  BeatLoader,
-  ClipLoader,
-  PropagateLoader,
-  PulseLoader,
-  ScaleLoader,
-} from "react-spinners";
+import { ClipLoader, ScaleLoader } from "react-spinners";
 import { FeaturedImageGallery } from "../components/Carousel";
 import { SlCloudUpload } from "react-icons/sl";
 import CanvasPage from "./CanvasPage";
@@ -29,13 +23,12 @@ const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loader, setLoader] = useState(false);
 
-  const [isUploading, setIsUploading] = useState(false);
   const [templateSelected, setTemplateSelected] = useState(false);
 
   const [download, setDownload] = useState(false);
   const [detailPopup, setDetailPopup] = useState(false);
 
-  const [hash, setHash] = useAtom(hashAtom);
+  const [hash] = useAtom(hashAtom);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -171,6 +164,7 @@ const UploadPage = () => {
       setName("");
       setDescription("");
       setSelectedFile(null);
+      setDetailPopup(false);
     } catch (error) {
       console.error(error);
       notify("Error uploading certificate to blockchain", "error");
@@ -512,7 +506,7 @@ const UploadPage = () => {
                     </div>
                     {/* ======================================================== */}
 
-                    {/* ============== Name input ======================= */}
+                    {/* ===================== Name input ======================= */}
                     <div className="flex flex-col gap-y-1 mt-3">
                       <label
                         htmlFor="name"

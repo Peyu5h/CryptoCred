@@ -70,7 +70,6 @@ const CanvasPage = ({ download, setDownload }) => {
   const [drawnContent, setDrawnContent] = useState([]);
 
   const handleDrawing = () => {
-    // Example: Adding a red rectangle at random position
     const newRect = {
       id: Date.now().toString(),
       x: Math.random() * 500,
@@ -80,7 +79,6 @@ const CanvasPage = ({ download, setDownload }) => {
       fill: "red",
     };
 
-    // Update state with the new drawn element
     setDrawnContent((prevContent) => [...prevContent, newRect]);
   };
   const handleTransform = () => {
@@ -95,12 +93,11 @@ const CanvasPage = ({ download, setDownload }) => {
     setDrawnContent(updatedContent);
   };
   const handleShapeSelect = (e, shape) => {
-    e.cancelBubble = true; // Prevent stage click event
+    e.cancelBubble = true;
     setSelectedShape(shape);
     transformerRef.current.nodes([shape]);
   };
 
-  // Function to handle stage click (deselect shape)
   const handleStageClick = () => {
     setSelectedShape(null);
     transformerRef.current.nodes([]);
@@ -109,7 +106,6 @@ const CanvasPage = ({ download, setDownload }) => {
   useEffect(() => {
     console.log("drawnContent updated:", drawnContent);
     if (drawnContent.length > 0) {
-      // Repopulate canvas with drawn content
       const layer = stageRef.current.findOne(".drawn-layer");
       layer.destroyChildren();
 
@@ -652,7 +648,7 @@ const CanvasPage = ({ download, setDownload }) => {
             step="0.01"
             value={zoomLevel}
             onChange={handleZoomChange}
-            className="cursor-pointer"
+            className="cursor-pointer accent-grn outline-none border-0"
           />
           <div className="percent mr-4 cursor-default">{`${Math.round(
             zoomLevel * 100
