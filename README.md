@@ -1,8 +1,4 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+https://github.com/Peyu5h/CryptoCred/assets/72596188/4dc04248-8937-421a-b390-74c46e7e55bb
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+In response to the rising issue of certificate manipulation and forgery, this project introduces a secure certificate generator and validator website. Utilizing blockchain technology the system employs an IPFS component to convert PDF and PNG files into unalterable hashes, securely stored in the blockchain. This approach ensures the integrity of certificates, making it resistant to manipulation while offering a secure and anonymous verification process for everyone
